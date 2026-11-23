@@ -39,6 +39,32 @@
     location.reload();
   };
 
+  /* ----------------------------------------------------------------- theme */
+
+  // 'light' or 'dark'. The user's choice is remembered per browser (ac_theme); without one the
+  // OS setting is followed, also when it changes. Default.aspx applies it before first paint.
+  function savedTheme() {
+    try { var v = localStorage.getItem('ac_theme'); return v === 'dark' || v === 'light' ? v : null; } catch (e) { return null; }
+  }
+  var osDark = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+  AC.theme = function () { return document.documentElement.getAttribute('data-bs-theme') === 'dark' ? 'dark' : 'light'; };
+  function applyTheme(theme) {
+    document.documentElement.setAttribute('data-bs-theme', theme);
+    // Repaint every toggle on the page (menu item and header button) without re-rendering the page.
+    Array.prototype.forEach.call(document.querySelectorAll('[data-action="toggle-theme"]'), function (el) {
+      el.outerHTML = toHtml(el.classList.contains('theme-btn') ? AC.themeButton() : themeMenuItem());
+    });
+  }
+  AC.setTheme = function (theme) {
+    theme = theme === 'dark' ? 'dark' : 'light';
+    try { localStorage.setItem('ac_theme', theme); } catch (e) { /* ignore */ }
+    applyTheme(theme);
+  };
+  if (osDark) {
+    var onOs = function () { if (!savedTheme()) { applyTheme(osDark.matches ? 'dark' : 'light'); } };
+    if (osDark.addEventListener) { osDark.addEventListener('change', onOs); } else if (osDark.addListener) { osDark.addListener(onOs); }
+  }
+
   /* ------------------------------------------------------------------ html */
 
   function SafeHtml(s) { this.s = s; }
@@ -779,6 +805,7 @@
             <li><a class="dropdown-item" href="#" data-action="change-password"><i class="bi bi-key me-2"></i>Change password</a></li>
             <li><a class="dropdown-item" href="${AC.link('dashboard')}"><i class="bi bi-eye me-2"></i>Public overview</a></li>
             <li>${langMenuItem()}</li>
+            <li>${themeMenuItem()}</li>
             <li><hr class="dropdown-divider"></li>
             <li><a class="dropdown-item text-danger" href="#" data-action="logout"><i class="bi bi-box-arrow-right me-2"></i>Sign out</a></li>
           </ul>
@@ -814,6 +841,7 @@
             <li><a class="dropdown-item" href="#" data-action="edit-profile"><i class="bi bi-person-lines-fill me-2"></i>Contact details</a></li>
             <li><a class="dropdown-item" href="#" data-action="change-password"><i class="bi bi-key me-2"></i>Change password</a></li>
             <li>${langMenuItem()}</li>
+            <li>${themeMenuItem()}</li>
             <li><hr class="dropdown-divider"></li>
             <li><a class="dropdown-item text-danger" href="#" data-action="logout"><i class="bi bi-box-arrow-right me-2"></i>Sign out</a></li>
           </ul>
@@ -826,7 +854,7 @@
       } else if (area === 'public') {
         app.innerHTML = toHtml(html`<nav class="navbar user-nav py-2"><div class="container-fluid px-lg-4">
     <a class="brand" href="${AC.link('dashboard')}"><span class="brand-mark"></span>${appName}</a>
-    <div class="d-flex align-items-center gap-2">${AC.langSwitch()}
+    <div class="d-flex align-items-center gap-2">${AC.themeButton()}${AC.langSwitch()}
     ${state.user ? html`<a class="btn btn-outline-secondary btn-sm" href="${AC.link(AC.home())}">Back to work</a>`
       : html`<button type="button" class="btn btn-primary btn-sm" data-action="login">Sign in</button>`}</div>
   </div></nav>
@@ -850,6 +878,19 @@
       <button type="button" class="btn ${LANG === 'en' ? 'btn-secondary' : 'btn-outline-secondary'}" data-action="set-lang" data-lang="en">EN</button>
       <button type="button" class="btn ${LANG === 'th' ? 'btn-secondary' : 'btn-outline-secondary'}" data-action="set-lang" data-lang="th">ไทย</button></div>`;
   };
+  /** Sun/moon button that switches light and dark mode (public page, login). */
+  AC.themeButton = function () {
+    var dark = AC.theme() === 'dark';
+    var label = dark ? t('Light mode') : t('Dark mode');
+    return html`<button type="button" class="btn btn-sm btn-outline-secondary theme-btn" data-action="toggle-theme" title="${label}" aria-label="${label}"><i class="bi ${dark ? 'bi-sun' : 'bi-moon-stars'}" aria-hidden="true"></i></button>`;
+  };
+  /** Menu entry that switches light and dark mode. */
+  function themeMenuItem() {
+    return AC.theme() === 'dark'
+      ? html`<a class="dropdown-item" href="#" data-action="toggle-theme"><i class="bi bi-sun me-2"></i>Light mode</a>`
+      : html`<a class="dropdown-item" href="#" data-action="toggle-theme"><i class="bi bi-moon-stars me-2"></i>Dark mode</a>`;
+  }
+
   /** Menu entry that switches to the other language. */
   function langMenuItem() {
     return LANG === 'th'
@@ -945,6 +986,7 @@
     AC.refresh();
   });
   AC.on('set-lang', function (el) { AC.setLang(el.getAttribute('data-lang')); });
+  AC.on('toggle-theme', function () { AC.setTheme(AC.theme() === 'dark' ? 'light' : 'dark'); });
 
   document.addEventListener('click', function (e) {
     var t = e.target.closest('[data-action]');

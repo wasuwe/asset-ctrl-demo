@@ -35,6 +35,8 @@ ACI18N.add('th', {
   'Language': 'ภาษา',
   'EN': 'EN',
   'English': 'English',
+  'Dark mode': 'โหมดมืด',
+  'Light mode': 'โหมดสว่าง',
 
   /* ---- generic */
   'Loading…': 'กำลังโหลด…',

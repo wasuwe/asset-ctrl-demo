@@ -6,9 +6,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Asset Ctrl</title>
 <script>
-  // Follow the OS light/dark setting and restore the collapsed sidebar before first paint.
+  // Light/dark: the user's choice (localStorage ac_theme, set by the header toggle) or else the OS setting.
+  // Also restore the collapsed sidebar. Runs before first paint so the page never flashes the wrong theme.
   (function () {
-    var dark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    var saved = null;
+    try { saved = localStorage.getItem('ac_theme'); } catch (e) {}
+    var dark = saved === 'dark' || saved === 'light' ? saved === 'dark'
+      : !!(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
     document.documentElement.setAttribute('data-bs-theme', dark ? 'dark' : 'light');
     try { if (localStorage.getItem('ac_sidebar') === 'collapsed') { document.documentElement.classList.add('sidebar-collapsed'); } } catch (e) {}
   })();
