@@ -18,6 +18,10 @@
  *
  * The live camera needs HTTPS (or localhost). Without it — or if the camera cannot be opened —
  * "Take a photo" uses the phone's camera app / a picture file instead, which works on plain HTTP too.
+ *
+ * The camera button only shows when the device has a camera (checked again when one is plugged in
+ * or removed). With more than one camera the view offers a camera choice; the back camera is the
+ * default and the last choice is remembered per browser (localStorage ac_camera).
  */
 (function () {
   'use strict';
@@ -28,6 +32,34 @@
   var me = document.currentScript && document.currentScript.src;
   var BASE = me ? me.replace(/js\/scanner\.js(\?.*)?$/, '') : 'assets/';
   var LIVE = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia && window.isSecureContext);
+  var PREF = 'ac_camera';
+
+  /* ------------------------------------------------------------ cameras */
+
+  /**
+   * Does this device have a camera? On HTTPS the browser lists its cameras (no permission needed
+   * to count them). On plain HTTP it hides the list: a touch device (phone, tablet) is taken to
+   * have one, for "Take a photo"; a desktop PC is not.
+   */
+  function detectCamera() {
+    var md = navigator.mediaDevices;
+    if (md && md.enumerateDevices && window.isSecureContext) {
+      return md.enumerateDevices().then(function (list) {
+        return list.some(function (d) { return d.kind === 'videoinput'; });
+      }, function () { return false; });
+    }
+    return Promise.resolve(!!(window.matchMedia && window.matchMedia('(pointer: coarse)').matches));
+  }
+
+  function cameras() {
+    return navigator.mediaDevices.enumerateDevices().then(function (list) {
+      return list.filter(function (d) { return d.kind === 'videoinput'; });
+    });
+  }
+
+  function isBack(label) { return /back|rear|environment|world|หลัง/i.test(label || ''); }
+  function savedCamera() { try { return localStorage.getItem(PREF) || ''; } catch (e) { return ''; } }
+  function saveCamera(id) { try { localStorage.setItem(PREF, id); } catch (e) { /* ignore */ } }
 
   /* ---------------------------------------------------------- libraries */
 
@@ -276,7 +308,8 @@
           <label class="btn btn-outline-light cam-photo"><i class="bi bi-image me-1"></i>Take a photo
             <input type="file" accept="image/*" capture="environment" hidden data-cam-file></label>
           <button type="button" class="cam-shutter" data-cam-shutter aria-label="${t('Read the text')}"><span></span></button>
-          <span class="cam-spacer"></span>
+          <label class="cam-pickcam" hidden><span class="visually-hidden">${t('Camera')}</span><i class="bi bi-camera-video" aria-hidden="true"></i>
+            <select data-cam-select aria-label="${t('Camera')}"></select></label>
         </div>
       </div>`.toString();
     document.body.appendChild(el);
@@ -297,24 +330,75 @@
     el.querySelector('[data-cam-file]').addEventListener('change', function (e) { fromPhoto(e.target.files && e.target.files[0]); e.target.value = ''; });
     el.querySelector('[data-cam-close]').focus();
 
+    el.querySelector('[data-cam-select]').addEventListener('change', function (e) {
+      saveCamera(e.target.value);
+      startCamera(e.target.value);
+    });
+
     if (!LIVE) { el.classList.add('no-live'); setMode('code'); return; }
+    startCamera(savedCamera(), true);
+    // Warm up the barcode reader while the camera starts.
+    detector().catch(function () { /* reported when used */ });
+  }
+
+  /**
+   * Open a camera: the given one (deviceId), else the back camera (facingMode environment).
+   * first = opening the view: if the browser did not pick a back camera by itself but one is
+   * listed by name, switch to it once (desktop browsers often ignore facingMode).
+   */
+  function startCamera(deviceId, first) {
+    if (!view) { return; }
+    var el = view.el;
+    clearTimeout(view.timer);
+    if (view.stream) { view.stream.getTracks().forEach(function (tr) { tr.stop(); }); view.stream = null; }
+    el.classList.remove('no-live');
     setStatus(t('Opening the camera…'), 'busy');
-    navigator.mediaDevices.getUserMedia({ audio: false, video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } } })
+    var video = { width: { ideal: 1280 }, height: { ideal: 720 } };
+    if (deviceId) { video.deviceId = { exact: deviceId }; } else { video.facingMode = { ideal: 'environment' }; }
+    navigator.mediaDevices.getUserMedia({ audio: false, video: video })
       .then(function (stream) {
-        if (!view || view.el !== el) { stream.getTracks().forEach(function (tr) { tr.stop(); }); return; }
+        if (!view || view.el !== el) { stream.getTracks().forEach(function (tr) { tr.stop(); }); return null; }
         view.stream = stream;
         view.video.srcObject = stream;
-        return view.video.play().catch(function () { /* autoplay with muted is allowed */ }).then(function () { setMode(view.mode); });
+        return view.video.play().catch(function () { /* muted autoplay is allowed */ }).then(function () {
+          return fillCameras(stream, first);
+        });
       }, function (err) {
-        if (!view) { return; }
+        if (!view || view.el !== el) { return; }
+        // A remembered camera that is gone: forget it and open the default one.
+        if (deviceId && err && (err.name === 'OverconstrainedError' || err.name === 'NotFoundError')) {
+          saveCamera('');
+          startCamera('', first);
+          return;
+        }
         el.classList.add('no-live');
         el.querySelector('.cam-nolive p').textContent = err && err.name === 'NotAllowedError'
           ? t('Camera permission was refused. Allow the camera for this site, or take a photo instead.')
           : t('The camera could not be opened. Take a photo instead.');
         setStatus('');
       });
-    // Warm up the barcode reader while the camera starts.
-    detector().catch(function () { /* reported when used */ });
+  }
+
+  /** Camera choice (only with 2+ cameras): names are known once the camera is allowed. */
+  function fillCameras(stream, first) {
+    return cameras().then(function (list) {
+      if (!view || view.stream !== stream) { return; }
+      var track = stream.getVideoTracks()[0];
+      var settings = track && track.getSettings ? track.getSettings() : {};
+      var current = settings.deviceId || '';
+      if (first && !savedCamera() && settings.facingMode !== 'environment') {
+        var back = list.filter(function (d) { return isBack(d.label) && d.deviceId !== current; })[0];
+        if (back) { startCamera(back.deviceId, false); return; }
+      }
+      var box = view.el.querySelector('.cam-pickcam');
+      var sel = view.el.querySelector('[data-cam-select]');
+      sel.innerHTML = html`${list.map(function (d, i) {
+        var name = d.label || t('Camera {n}', { n: i + 1 });
+        return html`<option value="${d.deviceId}" ${d.deviceId === current ? AC.raw('selected') : ''}>${name}</option>`;
+      })}`.toString();
+      box.hidden = list.length < 2;
+      setMode(view.mode);
+    }, function () { if (view && view.stream === stream) { setMode(view.mode); } });
   }
 
   /* ------------------------------------------------- buttons on fields */
@@ -351,13 +435,25 @@
     (root.querySelectorAll ? Array.prototype.slice.call(root.querySelectorAll(SELECTOR)) : []).forEach(addButton);
   }
 
+  var hasCamera = false;
+  function refreshCamera() {
+    return detectCamera().then(function (yes) {
+      hasCamera = yes;
+      document.body.classList.toggle('no-camera', !yes);
+      if (yes) { scan(document.body); }
+    });
+  }
+
   var queued = false;
   new MutationObserver(function () {
-    if (queued) { return; }
+    if (queued || !hasCamera) { return; }
     queued = true;
     requestAnimationFrame(function () { queued = false; scan(document.body); });
   }).observe(document.body, { childList: true, subtree: true });
-  scan(document.body);
+  refreshCamera();
+  if (navigator.mediaDevices && navigator.mediaDevices.addEventListener) {
+    navigator.mediaDevices.addEventListener('devicechange', refreshCamera); // webcam plugged in / removed
+  }
 
-  AC.scanner = { open: open, close: close, candidates: candidates, cleanCode: cleanCode };
+  AC.scanner = { open: open, close: close, candidates: candidates, cleanCode: cleanCode, refresh: refreshCamera };
 })();

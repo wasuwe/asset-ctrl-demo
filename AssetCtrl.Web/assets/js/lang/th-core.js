@@ -38,6 +38,8 @@ ACI18N.add('th', {
   'Dark mode': 'โหมดมืด',
   'Show results': 'แสดงผล',
   'Scan with the camera': 'สแกนด้วยกล้อง',
+  'Camera': 'กล้อง',
+  'Camera {n}': 'กล้อง {n}',
   'What to read': 'สิ่งที่จะอ่าน',
   'Barcode / QR': 'บาร์โค้ด / QR',
   'Text': 'ข้อความ',

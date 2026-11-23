@@ -1013,3 +1013,15 @@ body.cam-open { overflow: hidden; }
 .cam-shutter:active span { transform: scale(.9); }
 .cam-scan[data-mode="text"]:not(.no-live) .cam-shutter { visibility: visible; }
 .cam-scan.is-busy .cam-shutter { opacity: .4; pointer-events: none; }
+
+/* No camera on this device: no camera buttons (the field keeps its normal size) */
+body.no-camera .cam-btn { display: none !important; }
+body.no-camera .search-wrap.has-cam .form-control { padding-right: .75rem; }
+/* Camera choice, right of the shutter */
+.cam-pickcam { justify-self: end; position: relative; display: inline-flex; align-items: center; max-width: 100%; min-width: 0; }
+.cam-pickcam[hidden] { display: none; }
+.cam-pickcam .bi { position: absolute; left: .75rem; pointer-events: none; color: #fff; }
+.cam-pickcam select { appearance: none; -webkit-appearance: none; max-width: 9.5rem; min-width: 0; padding: .45rem .75rem .45rem 2.1rem; border-radius: 999px;
+  border: 1px solid rgba(255,255,255,.6); background: transparent; color: #fff; font-size: .85rem; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; }
+.cam-pickcam select:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+.cam-pickcam option { color: #0b0d10; }
