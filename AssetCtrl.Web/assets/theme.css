@@ -966,3 +966,50 @@ body:has(.offcanvas.show, .offcanvas.showing, .offcanvas-lg.show, .offcanvas-lg.
   .asset-table td.f-fix_no, .asset-table td.f-pc_type, .asset-table td.f-os_name, .asset-table td.f-os_version,
   .asset-table td.f-editor_note, .asset-table td.f-last_use { padding-top: .5rem !important; border-top: 1px dashed var(--ac-line); }
 }
+
+/* ---------------------------------------------------------------- camera scanner (assets/js/scanner.js) */
+/* Camera button on IT asset fields */
+.search-wrap.has-cam .form-control { padding-right: 2.6rem; }
+.cam-btn--inline { position: absolute; right: .25rem; top: 50%; transform: translateY(-50%); width: 2rem; height: 2rem; border: 0; border-radius: .45rem;
+  background: transparent; color: var(--bs-secondary-color); display: grid; place-items: center; font-size: 1.05rem; }
+.cam-btn--inline:hover, .cam-btn--inline:focus-visible { background: var(--ac-accent-soft); color: var(--ac-ink); }
+.search-wrap.has-cam > .bi-search { pointer-events: none; }
+.btn.cam-btn { display: inline-grid; place-items: center; flex: none; }
+.btn-lg.cam-btn { min-width: 3.4rem; font-size: 1.25rem; }
+.cam-group > .form-control { min-width: 0; }
+
+/* Full-screen camera view (over everything, also over an open dialog) */
+body.cam-open { overflow: hidden; }
+.cam-scan { position: fixed; inset: 0; z-index: 2000; display: flex; flex-direction: column; background: #0b0d10; color: #fff; }
+.cam-top { display: flex; align-items: center; gap: .75rem; padding: calc(.6rem + env(safe-area-inset-top)) .75rem .6rem; }
+.cam-modes { display: inline-flex; padding: .2rem; border-radius: 999px; background: rgba(255,255,255,.12); margin-right: auto; }
+.cam-modes button { border: 0; background: transparent; color: rgba(255,255,255,.8); padding: .45rem .9rem; border-radius: 999px; font-size: .9rem; font-weight: 500; display: inline-flex; align-items: center; gap: .4rem; }
+.cam-modes button.active { background: #fff; color: #0b0d10; }
+.cam-close { border: 0; width: 2.6rem; height: 2.6rem; border-radius: 50%; background: rgba(255,255,255,.12); color: #fff; font-size: 1.1rem; display: grid; place-items: center; }
+.cam-close:hover, .cam-close:focus-visible { background: rgba(255,255,255,.25); }
+.cam-stage { position: relative; flex: 1 1 auto; overflow: hidden; display: grid; place-items: center; }
+.cam-stage video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+/* Aiming frame: square for codes, a wide band for text (matches the area OCR reads: 80% x 30%) */
+.cam-frame { position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none; }
+.cam-frame span { width: min(72vw, 72vh, 340px); aspect-ratio: 1; border-radius: 1rem; box-shadow: 0 0 0 100vmax rgba(0,0,0,.45); outline: 3px solid #fff; outline-offset: -3px; transition: width .2s, aspect-ratio .2s; }
+.cam-scan[data-mode="text"] .cam-frame span { width: 80%; aspect-ratio: auto; height: 30%; border-radius: .6rem; }
+.cam-scan[data-mode="code"] .cam-frame span::after { content: ""; display: block; height: 2px; margin: 0 8%; background: #3fbf98; box-shadow: 0 0 8px #3fbf98; animation: cam-line 1.8s ease-in-out infinite alternate; }
+@keyframes cam-line { from { transform: translateY(1.2rem); } to { transform: translateY(calc(min(72vw, 72vh, 340px) - 1.2rem)); } }
+@media (prefers-reduced-motion: reduce) { .cam-scan .cam-frame span::after { animation: none; transform: translateY(50%); } }
+.cam-nolive { display: none; position: relative; text-align: center; max-width: 22rem; padding: 1.5rem; color: rgba(255,255,255,.85); }
+.cam-nolive .bi { font-size: 2.5rem; display: block; margin-bottom: .5rem; }
+.cam-scan.no-live video, .cam-scan.no-live .cam-frame { display: none; }
+.cam-scan.no-live .cam-nolive { display: block; }
+.cam-bottom { padding: .75rem 1rem calc(1rem + env(safe-area-inset-bottom)); display: flex; flex-direction: column; gap: .75rem; }
+.cam-status { min-height: 1.4rem; text-align: center; font-size: .9rem; color: rgba(255,255,255,.85); }
+.cam-status.is-bad { color: #ffb4a8; }
+.cam-status.is-busy::before { content: ""; display: inline-block; width: .9rem; height: .9rem; margin-right: .45rem; vertical-align: -.1rem; border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; animation: spinner-border .75s linear infinite; }
+.cam-picks { display: flex; flex-wrap: wrap; justify-content: center; gap: .5rem; }
+.cam-pick { font-family: var(--bs-font-monospace); font-weight: 600; font-size: 1rem; padding: .5rem .9rem; }
+.cam-actions { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: .75rem; }
+.cam-photo { justify-self: start; white-space: nowrap; }
+.cam-shutter { width: 4.25rem; height: 4.25rem; border-radius: 50%; border: 4px solid #fff; background: transparent; padding: 4px; visibility: hidden; }
+.cam-shutter span { display: block; width: 100%; height: 100%; border-radius: 50%; background: #fff; transition: transform .1s; }
+.cam-shutter:active span { transform: scale(.9); }
+.cam-scan[data-mode="text"]:not(.no-live) .cam-shutter { visibility: visible; }
+.cam-scan.is-busy .cam-shutter { opacity: .4; pointer-events: none; }

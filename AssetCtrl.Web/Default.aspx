@@ -47,6 +47,8 @@
 <script src="<%= Asset("js/core.js") %>"></script>
 <script src="<%= Asset("js/components.js") %>"></script>
 <script src="<%= Asset("js/mascot.js") %>"></script>
+<!-- Camera button on IT asset fields (barcode / QR / text); libraries load on first use -->
+<script src="<%= Asset("js/scanner.js") %>"></script>
 <!-- Page modules: each registers its routes with AC.route() -->
 <script src="<%= Asset("js/pages/core-pages.js") %>"></script>
 <script src="<%= Asset("js/pages/assets.js") %>"></script>

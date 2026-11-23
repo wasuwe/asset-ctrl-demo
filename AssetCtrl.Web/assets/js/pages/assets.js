@@ -407,7 +407,7 @@
         ${!can('fix_no') ? html`<div class="alert alert-secondary py-2 small">You can edit Area, Remark, Status, Location and Building.</div>` : ''}
         <div class="row g-3">
           <div class="col-md-4"><label class="form-label" for="f-asset_no">IT Asset</label>
-            ${isNew ? html`<input class="form-control font-monospace text-uppercase" id="f-asset_no" name="asset_no" required autofocus placeholder="PCS123456">`
+            ${isNew ? html`<input class="form-control font-monospace text-uppercase" id="f-asset_no" name="asset_no" required autofocus placeholder="PCS123456" data-camera>`
               : html`<input class="form-control-plaintext font-monospace fw-semibold" value="${a.asset_no}" readonly tabindex="-1">`}</div>
           ${input('fix_no', AC.t('Fix No.'), { mono: true })}
           <div class="col-md-4"><label class="form-label" for="f-status">Status</label>${statusField}</div>

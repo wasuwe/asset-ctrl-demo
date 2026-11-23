@@ -1,0 +1,4 @@
+# Bundled third-party files: store and check out byte for byte
+*.wasm binary
+*.gz binary
+AssetCtrl.Web/assets/vendor/** -text
