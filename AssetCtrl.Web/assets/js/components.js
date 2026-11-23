@@ -14,7 +14,7 @@
     if (typeof title === 'string') { title = t(title); }
     if (typeof sub === 'string') { sub = t(sub); }
     return html`<div class="page-head"><div><h1>${title}</h1>${sub ? html`<div class="page-sub">${sub}</div>` : ''}</div>
-      ${actions ? html`<div class="d-flex flex-wrap gap-2">${actions}</div>` : ''}</div>`;
+      ${actions ? html`<div class="page-actions d-flex flex-wrap gap-2">${actions}</div>` : ''}</div>`;
   };
 
   /** KPI cards. linkBase: assets route to link the cards to (or null). */

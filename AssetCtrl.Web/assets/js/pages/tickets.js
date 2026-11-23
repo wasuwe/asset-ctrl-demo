@@ -778,7 +778,7 @@
             </div>
             ${c.queuePanel(t)}
           </div>
-          <div class="d-flex flex-wrap gap-2">${buttons}</div>
+          <div class="page-actions d-flex flex-wrap gap-2">${buttons}</div>
         </div>
         ${stepper(t)}
         ${nextStep(t, admin)}

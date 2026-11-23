@@ -74,31 +74,23 @@
     var plain = function (arr) { return (arr || []).map(function (v) { return [v, v]; }); };
     var wcs = (o.work_centers || []).map(function (w) { return [String(w.id), wcLabel(w)]; });
     if (area() === 'admin') { wcs.push(['none', AC.t('— No Work Center —')]); }
-    var active = FILTER_KEYS.filter(function (k) { return k !== 'q' && f[k]; }).length;
     var empty = !FILTER_KEYS.some(function (k) { return f[k]; });
     return html`<form class="filter-bar d-flex flex-wrap gap-2 align-items-center mb-2" data-filter data-keep="sort dir per" role="search">
       <div class="search-wrap">
         <i class="bi bi-search"></i>
         <input class="form-control form-control-sm" type="search" name="q" value="${f.q}" placeholder="Search asset no., description, area…" data-search>
       </div>
-      <button class="btn btn-outline-secondary btn-sm d-lg-none" type="button" data-bs-toggle="collapse" data-bs-target="#more-filters">
-        <i class="bi bi-funnel"></i> Filters${active ? ' (' + active + ')' : ''}
-      </button>
-      <div class="collapse d-lg-flex flex-wrap gap-2 w-100 w-lg-auto" id="more-filters" style="flex-basis:auto">
-        <div class="d-flex flex-wrap gap-2">
-          ${sel('status', AC.t('Status'), statusOptions(true).concat([['REPAIR,FAIL', AC.t('In repair or broken')]]), f.status)}
-          ${sel('wc', AC.t('Work Center'), wcs, f.wc)}
-          ${sel('location', AC.t('Location'), plain(o.locations), f.location)}
-          ${sel('building', AC.t('Building'), plain(o.buildings), f.building)}
-          ${sel('type', AC.t('Type'), (o.types || []).map(function (t) { return [t, typeLabel(t)]; }), f.type)}
-          ${sel('pc_type', AC.t('Type PC'), plain(o.pc_types), f.pc_type)}
-          ${sel('os', AC.t('OS'), plain(o.os), f.os)}
-          ${sel('checked', AC.t('This month'), [['done', AC.t('Updated this month')], ['pending', AC.t('Not updated yet')]], f.checked)}
-          <div class="form-check align-self-center ms-1">
-            <input class="form-check-input" type="checkbox" name="has_ticket" value="1" id="has_ticket" data-autosubmit ${f.has_ticket === '1' ? AC.raw('checked') : ''}>
-            <label class="form-check-label small" for="has_ticket">Has an open repair ticket</label>
-          </div>
-        </div>
+      ${sel('status', AC.t('Status'), statusOptions(true).concat([['REPAIR,FAIL', AC.t('In repair or broken')]]), f.status)}
+      ${sel('wc', AC.t('Work Center'), wcs, f.wc)}
+      ${sel('location', AC.t('Location'), plain(o.locations), f.location)}
+      ${sel('building', AC.t('Building'), plain(o.buildings), f.building)}
+      ${sel('type', AC.t('Type'), (o.types || []).map(function (t) { return [t, typeLabel(t)]; }), f.type)}
+      ${sel('pc_type', AC.t('Type PC'), plain(o.pc_types), f.pc_type)}
+      ${sel('os', AC.t('OS'), plain(o.os), f.os)}
+      ${sel('checked', AC.t('This month'), [['done', AC.t('Updated this month')], ['pending', AC.t('Not updated yet')]], f.checked)}
+      <div class="form-check align-self-center ms-1">
+        <input class="form-check-input" type="checkbox" name="has_ticket" value="1" id="has_ticket" data-autosubmit ${f.has_ticket === '1' ? AC.raw('checked') : ''}>
+        <label class="form-check-label small" for="has_ticket">Has an open repair ticket</label>
       </div>
       <button class="d-none" type="submit"></button>
       ${empty ? '' : html`<a class="btn btn-link btn-sm" href="${AC.link(path)}">Clear filters</a>`}
@@ -148,7 +140,7 @@
       return html`<tr class="${a.checked_this_month ? 'row-checked' : 'row-pending'}" title="${checkTitle}">
         ${selectable ? html`<td class="col-check" data-label=""><input class="form-check-input" type="checkbox" name="ids[]" value="${a.id}" aria-label="${AC.t('Select {no}', { no: a.asset_no })}"></td>` : ''}
         <td class="col-no text-secondary" data-label="${AC.t('No.')}">${fmt.number((firstNo || 1) + i)}</td>
-        ${cols.map(function (c) { return html`<td class="${c[3] || ''}" data-label="${AC.t(c[1])}">${c[2](a)}</td>`; })}
+        ${cols.map(function (c) { return html`<td class="f-${c[0]} ${c[3] || ''}" data-label="${AC.t(c[1])}">${c[2](a)}</td>`; })}
         <td class="col-act text-end" data-label="">${canEdit ? html`<button type="button" class="btn btn-sm btn-outline-secondary" data-action="asset-edit" data-id="${a.id}" title="${AC.t('Edit')}"><i class="bi bi-pencil"></i></button>` : ''}</td>
       </tr>`;
     });

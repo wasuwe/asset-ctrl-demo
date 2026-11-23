@@ -625,6 +625,7 @@
 
     var area = def.area === 'auto' ? (u ? (u.is_admin ? 'admin' : 'user') : 'public') : def.area;
     layout(area, path);
+    setTimeout(clearStrayBackdrops, 450);
     var main = document.getElementById('main');
     var y = window.scrollY;
     var seq = ++renderSeq;
@@ -695,7 +696,7 @@
         <h1 class="error-page__title">${t(title)}</h1>
         <p class="error-page__msg">${message}</p>
         ${hint ? html`<p class="error-page__hint">${hint}</p>` : ''}
-        <div class="d-flex flex-wrap gap-2 mt-2">
+        <div class="page-actions error-actions d-flex flex-wrap gap-2 mt-2">
           ${canRetry ? html`<button type="button" class="btn btn-primary" data-action="error-retry"><i class="bi bi-arrow-clockwise me-1"></i>Try again</button>`
             : retryable ? html`<button type="button" class="btn btn-secondary" disabled title="${t('Locked: please call the ICS team.')}"><i class="bi bi-lock-fill me-1"></i>Try again</button>` : ''}
           <a class="btn ${canRetry ? 'btn-outline-secondary' : 'btn-primary'}" href="${AC.link(AC.home())}">Back to start</a>
@@ -784,7 +785,7 @@
       var u = state.user, appName = state.meta.app_name;
       if (area === 'admin') {
         app.innerHTML = toHtml(html`<div class="d-flex min-vh-100">
-  <aside class="app-sidebar offcanvas-lg offcanvas-start" tabindex="-1" id="sidebar" aria-label="Main menu">
+  <aside class="app-sidebar offcanvas-lg offcanvas-end" tabindex="-1" id="sidebar" aria-label="Main menu">
     <div class="sidebar-head d-flex align-items-center justify-content-between">
       <a class="brand" href="${AC.link('admin/dashboard')}" title="${appName}"><span class="brand-mark"></span><span class="nav-text">${appName}<span class="badge rounded-pill bg-primary-subtle text-primary-emphasis fw-semibold ms-1" style="font-size:.6rem">ADMIN</span></span></a>
       <button type="button" class="btn-close d-lg-none" data-bs-dismiss="offcanvas" data-bs-target="#sidebar" aria-label="Close"></button>
@@ -814,30 +815,33 @@
     </div>
   </aside>
   <div class="app-main d-flex flex-column">
-    <header class="d-lg-none d-flex align-items-center gap-2 px-3 py-2 border-bottom bg-body sticky-top">
-      <button class="btn btn-outline-secondary btn-sm" data-bs-toggle="offcanvas" data-bs-target="#sidebar" aria-label="Open menu"><i class="bi bi-list"></i></button>
-      <span class="brand"><span class="brand-mark"></span>${appName}</span>
+    <header class="mobile-bar d-lg-none d-flex align-items-center gap-2 px-3 py-2 border-bottom bg-body sticky-top">
+      <a class="brand" href="${AC.link('admin/dashboard')}"><span class="brand-mark"></span>${appName}</a>
+      <button class="btn burger ms-auto" data-bs-toggle="offcanvas" data-bs-target="#sidebar" aria-controls="sidebar" aria-label="${t('Open menu')}"><i class="bi bi-list"></i></button>
     </header>
     <main class="page-wrap p-4" id="main"></main>
   </div>
 </div>`);
       } else if (area === 'user') {
         var wcLabel = u.work_centers.length ? u.work_centers.map(function (w) { return w.code; }).join(', ') : t('No Work Center assigned');
-        app.innerHTML = toHtml(html`<nav class="navbar navbar-expand-lg user-nav py-lg-0 sticky-top">
-  <div class="container-fluid px-lg-4">
+        app.innerHTML = toHtml(html`<nav class="navbar navbar-expand-lg user-nav py-2 py-lg-0 sticky-top">
+  <div class="container-fluid px-3 px-lg-4">
     <a class="brand me-4" href="${AC.link('user/home')}"><span class="brand-mark"></span>${appName}</a>
-    <button class="navbar-toggler btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#userNav" aria-label="Menu"><i class="bi bi-list"></i></button>
-    <div class="collapse navbar-collapse" id="userNav">
-      <ul class="navbar-nav me-auto" id="top-nav">${topNav()}</ul>
-      <div class="d-flex align-items-center gap-2 py-2 py-lg-0">
-        ${AC.can('tickets.create') ? html`<button class="btn btn-primary btn-sm" data-action="ticket-create"><i class="bi bi-plus-lg me-1"></i>Report a problem</button>` : ''}
-        <div class="dropdown">
-          <button class="btn btn-sm d-flex align-items-center gap-2 border-0" data-bs-toggle="dropdown" aria-expanded="false">
-            <span class="avatar">${AC.fmt.initials(u.name)}</span>
-            <span class="text-start lh-sm d-none d-md-block"><span class="d-block fw-semibold">${u.name}</span><span class="d-block small text-secondary text-truncate" style="max-width:220px">${wcLabel}</span></span>
-          </button>
-          <ul class="dropdown-menu dropdown-menu-end shadow-sm">
-            <li><span class="dropdown-item-text small text-secondary">Work Centers: ${wcLabel}</span></li>
+    <button class="btn burger ms-auto d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#userNav" aria-controls="userNav" aria-label="${t('Open menu')}"><i class="bi bi-list"></i></button>
+    <div class="offcanvas offcanvas-end side-panel" tabindex="-1" id="userNav" aria-label="${t('Menu')}">
+      <div class="offcanvas-header d-lg-none">
+        <span class="brand"><span class="brand-mark"></span>${appName}</span>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+      </div>
+      <div class="offcanvas-body align-items-lg-center">
+        <div class="d-lg-none panel-user">
+          <span class="avatar">${AC.fmt.initials(u.name)}</span>
+          <span class="lh-sm overflow-hidden"><span class="d-block fw-semibold text-truncate">${u.name}</span><span class="d-block small text-secondary">Work Centers: ${wcLabel}</span></span>
+        </div>
+        <ul class="navbar-nav me-auto" id="top-nav">${topNav()}</ul>
+        <div class="d-flex flex-column flex-lg-row align-items-stretch align-items-lg-center gap-2 py-2 py-lg-0">
+          ${AC.can('tickets.create') ? html`<button class="btn btn-primary btn-sm" data-action="ticket-create"><i class="bi bi-plus-lg me-1"></i>Report a problem</button>` : ''}
+          <ul class="list-unstyled panel-links d-lg-none mb-0">
             <li><a class="dropdown-item" href="#" data-action="edit-profile"><i class="bi bi-person-lines-fill me-2"></i>Contact details</a></li>
             <li><a class="dropdown-item" href="#" data-action="change-password"><i class="bi bi-key me-2"></i>Change password</a></li>
             <li>${langMenuItem()}</li>
@@ -845,6 +849,21 @@
             <li><hr class="dropdown-divider"></li>
             <li><a class="dropdown-item text-danger" href="#" data-action="logout"><i class="bi bi-box-arrow-right me-2"></i>Sign out</a></li>
           </ul>
+          <div class="dropdown d-none d-lg-block">
+            <button class="btn btn-sm d-flex align-items-center gap-2 border-0" data-bs-toggle="dropdown" aria-expanded="false">
+              <span class="avatar">${AC.fmt.initials(u.name)}</span>
+              <span class="text-start lh-sm d-none d-md-block"><span class="d-block fw-semibold">${u.name}</span><span class="d-block small text-secondary text-truncate" style="max-width:220px">${wcLabel}</span></span>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+              <li><span class="dropdown-item-text small text-secondary">Work Centers: ${wcLabel}</span></li>
+              <li><a class="dropdown-item" href="#" data-action="edit-profile"><i class="bi bi-person-lines-fill me-2"></i>Contact details</a></li>
+              <li><a class="dropdown-item" href="#" data-action="change-password"><i class="bi bi-key me-2"></i>Change password</a></li>
+              <li>${langMenuItem()}</li>
+              <li>${themeMenuItem()}</li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item text-danger" href="#" data-action="logout"><i class="bi bi-box-arrow-right me-2"></i>Sign out</a></li>
+            </ul>
+          </div>
         </div>
       </div>
     </div>
@@ -852,11 +871,23 @@
 </nav>
 <main class="container-fluid px-lg-4 page-wrap py-4" id="main"></main>`);
       } else if (area === 'public') {
-        app.innerHTML = toHtml(html`<nav class="navbar user-nav py-2"><div class="container-fluid px-lg-4">
-    <a class="brand" href="${AC.link('assets')}"><span class="brand-mark"></span>${appName}</a>
-    <div class="d-flex align-items-center gap-2">${AC.themeButton()}${AC.langSwitch()}
-    ${state.user ? html`<a class="btn btn-outline-secondary btn-sm" href="${AC.link(AC.home())}">Back to work</a>`
-      : html`<button type="button" class="btn btn-primary btn-sm" data-action="login">Sign in</button>`}</div>
+        app.innerHTML = toHtml(html`<nav class="navbar navbar-expand-lg user-nav py-2"><div class="container-fluid px-3 px-lg-4">
+    <a class="brand me-4" href="${AC.link('assets')}"><span class="brand-mark"></span>${appName}</a>
+    <div class="offcanvas offcanvas-end side-panel" tabindex="-1" id="publicNav" aria-label="${t('Menu')}">
+      <div class="offcanvas-header d-lg-none">
+        <span class="brand"><span class="brand-mark"></span>${appName}</span>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+      </div>
+      <div class="offcanvas-body align-items-lg-center">
+        <ul class="navbar-nav me-auto" id="top-nav">${publicNav()}</ul>
+        <div class="d-flex align-items-center gap-2 panel-tools">${AC.themeButton()}${AC.langSwitch()}</div>
+      </div>
+    </div>
+    <div class="d-flex align-items-center gap-2 ms-auto ms-lg-2">
+      ${state.user ? html`<a class="btn btn-outline-secondary btn-sm" href="${AC.link(AC.home())}">Back to work</a>`
+        : html`<button type="button" class="btn btn-primary btn-sm" data-action="login">Sign in</button>`}
+      <button class="btn burger d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#publicNav" aria-controls="publicNav" aria-label="${t('Open menu')}"><i class="bi bi-list"></i></button>
+    </div>
   </div></nav>
 <main class="container-fluid px-lg-4 page-wrap py-4" id="main"></main>`);
       } else {
@@ -868,8 +899,9 @@
       a.classList.toggle('active', activeFor(a.getAttribute('data-nav'), path));
     });
     moveNavIndicator();
-    var off = $('#sidebar');
-    if (off) { var oc = bootstrap.Offcanvas.getInstance(off); if (oc) { oc.hide(); } sidebarTips(); }
+    // Close the slide-in menu (admin sidebar / user / public panel) after navigating.
+    $$('.offcanvas, .offcanvas-lg', app).forEach(function (el) { var oc = bootstrap.Offcanvas.getInstance(el); if (oc) { oc.hide(); } });
+    if ($('#sidebar')) { sidebarTips(); }
   }
 
   /** EN | TH buttons (login page, public page). */
@@ -933,6 +965,13 @@
       return html`<a class="nav-link" data-nav="${n[0]}" href="${AC.link(n[0])}" data-tip="${t(n[2])}"><i class="bi ${n[1]}"></i><span class="nav-text">${t(n[2])}</span>${n[4] ? html`<span class="nav-count" data-nav-count="${n[4]}"></span>` : ''}</a>`;
     });
   }
+  /** Public top menu: the read-only asset list and the totals overview. */
+  function publicNav() {
+    return [['assets', 'IT assets', 'bi-pc-display'], ['dashboard', 'Overview', 'bi-bar-chart']].map(function (n) {
+      return html`<li class="nav-item"><a class="nav-link px-lg-3" data-nav="${n[0]}" href="${AC.link(n[0])}"><i class="bi ${n[2]} me-2 d-lg-none"></i>${t(n[1])}</a></li>`;
+    });
+  }
+
   function topNav() {
     return NAV_USER.map(function (n) {
       if (n[2] && !AC.can(n[2])) { return ''; }
@@ -986,6 +1025,15 @@
     AC.refresh();
   });
   AC.on('set-lang', function (el) { AC.setLang(el.getAttribute('data-lang')); });
+  // "Clear filters" in the small-screen filter panel: reset its controls and show the results.
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest('[data-filter-clear]');
+    if (!b) { return; }
+    $$('select, input', b.closest('.filter-panel')).forEach(function (c) {
+      if (c.type === 'checkbox' || c.type === 'radio') { c.checked = false; } else if (c.tagName === 'SELECT') { c.selectedIndex = 0; } else if (c.type !== 'hidden') { c.value = ''; }
+    });
+    b.form.requestSubmit();
+  });
   AC.on('toggle-theme', function () { AC.setTheme(AC.theme() === 'dark' ? 'light' : 'dark'); });
 
   document.addEventListener('click', function (e) {
@@ -1001,6 +1049,8 @@
     var form = e.target;
     if (!form.hasAttribute('data-filter')) { return; }
     e.preventDefault();
+    var openPanel = $('.filter-panel.show', form);
+    if (openPanel) { bootstrap.Offcanvas.getOrCreateInstance(openPanel).hide(); }
     var q = AC.formData(form);
     Object.keys(q).forEach(function (k) { if (q[k] === '0' && form.querySelector('[name="' + k + '"][type=checkbox]')) { delete q[k]; } });
     var keep = (form.getAttribute('data-keep') || '').split(/\s+/).filter(Boolean);
@@ -1010,7 +1060,10 @@
   });
   document.addEventListener('change', function (e) {
     var el = e.target;
-    if (el.hasAttribute && el.hasAttribute('data-autosubmit') && el.form) { el.form.requestSubmit(); }
+    if (el.hasAttribute && el.hasAttribute('data-autosubmit') && el.form) {
+      if (SMALL.matches && el.closest('.filter-panel')) { return; }
+      el.form.requestSubmit();
+    }
   });
 
   // Sidebar collapse (remembered per browser). Shortcut: "["
@@ -1050,7 +1103,117 @@
    *   input[data-asset-lookup]     asset-number autocomplete (needs list="<datalist id>", optional data-info="#el")
    *   [data-bs-toggle=tooltip]
    */
+  /* ------------------------------------------------------- small screens */
+
+  var SMALL = window.matchMedia('(max-width: 991.98px)');
+
+  /**
+   * Filter bars (form.filter-bar[data-filter]) on small screens: the search box stays in the page and
+   * every other control moves into a panel that slides in from the right ("Filters (n)" button).
+   * The panel is .offcanvas-lg, so from 992px up the controls sit inline exactly as before.
+   * Inside the open panel, changes are not sent one by one; "Show results" applies them together.
+   */
+  var filterSeq = 0;
+  function enhanceFilters(root) {
+    $$('form.filter-bar[data-filter]:not([data-filter-panel])', root).forEach(function (form) {
+      form.setAttribute('data-filter-panel', '');
+      var search = null;
+      var moved = [];
+      Array.prototype.slice.call(form.children).forEach(function (el) {
+        if (!search && el.querySelector && (el.matches('input[type=search],input[name=q]') || el.querySelector('input[type=search],input[name=q]'))) { search = el; return; }
+        if (el.matches('select, input:not([type=hidden]), .input-group, .form-check') || el.querySelector('select, input:not([type=hidden]):not([type=search])')) { moved.push(el); }
+      });
+      if (!moved.length) { return; }
+      var id = 'filter-panel-' + (++filterSeq);
+      var active = moved.reduce(function (n, el) {
+        return n + $$('select, input', el).concat(el.matches('select, input') ? [el] : []).filter(function (c) {
+          if (c.type === 'checkbox' || c.type === 'radio') { return c.checked; }
+          if (c.tagName === 'SELECT') { return c.selectedIndex > 0; }
+          return c.type !== 'hidden' && c.value !== '';
+        }).length;
+      }, 0);
+      var panel = document.createElement('div');
+      panel.className = 'filter-panel offcanvas-lg offcanvas-end';
+      panel.id = id;
+      panel.tabIndex = -1;
+      panel.setAttribute('aria-label', t('Filters'));
+      panel.innerHTML = toHtml(html`<div class="offcanvas-header d-lg-none"><h2 class="h5 mb-0"><i class="bi bi-funnel me-2"></i>Filters</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#${id}" aria-label="Close"></button></div>
+        <div class="offcanvas-body filter-panel-body"></div>
+        <div class="filter-panel-foot d-lg-none">
+          <button type="button" class="btn btn-outline-secondary" data-filter-clear>Clear filters</button>
+          <button type="submit" class="btn btn-primary flex-grow-1">Show results</button></div>`);
+      var body = $('.filter-panel-body', panel);
+      var anchor = moved[0];
+      form.insertBefore(panel, anchor);
+      moved.forEach(function (el) { body.appendChild(el); });
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'btn btn-outline-secondary btn-sm filter-toggle d-lg-none' + (active ? ' has-active' : '');
+      btn.setAttribute('data-bs-toggle', 'offcanvas');
+      btn.setAttribute('data-bs-target', '#' + id);
+      btn.setAttribute('aria-controls', id);
+      btn.innerHTML = toHtml(html`<i class="bi bi-funnel"></i><span>Filters</span>${active ? html`<span class="badge rounded-pill text-bg-primary">${active}</span>` : ''}`);
+      if (search) { search.after(btn); } else { form.insertBefore(btn, panel); }
+      form.classList.add('has-filter-panel');
+    });
+  }
+
+  /**
+   * Data tables on phones: every row becomes a card, each cell labelled with its column header
+   * (data-label, from the <thead>). Not for .asset-table (own card layout) or .table-fit (small
+   * summary tables that already fit). Tables without a header just wrap their cells.
+   */
+  function enhanceTables(root) {
+    $$('table.table:not(.asset-table):not(.table-fit):not([data-stacked])', root).forEach(function (table) {
+      table.setAttribute('data-stacked', '');
+      var head = $('thead tr', table);
+      if (!head) { table.classList.add('table-wrap-sm'); return; }
+      var labels = [];
+      $$('th', head).forEach(function (th) {
+        var label = th.querySelector('input') ? '' : th.textContent.replace(/\s+/g, ' ').trim();
+        for (var i = 0; i < (th.colSpan || 1); i++) { labels.push(label); }
+      });
+      table.classList.add('table-stack');
+      $$('tbody > tr', table).forEach(function (tr) {
+        var col = 0, first = true;
+        Array.prototype.forEach.call(tr.children, function (td) {
+          if (td.colSpan > 1) { td.classList.add('stack-full'); col += td.colSpan; return; }
+          var label = labels[col] || '';
+          if (/^(#|No\.?|ลำดับ)$/i.test(label)) { td.classList.add('stack-hide'); col += 1; return; }
+          if (td.classList.contains('col-check') || td.querySelector(':scope > input[type=checkbox]')) { td.classList.add('stack-check'); }
+          else if (first) { td.classList.add('stack-primary'); first = false; }
+          else if (label) { td.setAttribute('data-label', label); }
+          col += 1;
+        });
+      });
+    });
+  }
+
+  function enhance(root) {
+    if (!root) { return; }
+    enhanceFilters(root);
+    enhanceTables(root);
+  }
+  AC.enhance = enhance;
+  // Pages also redraw parts of themselves (live lists, tabs inside a page): enhance those too.
+  var enhanceQueued = false;
+  new MutationObserver(function () {
+    if (enhanceQueued) { return; }
+    enhanceQueued = true;
+    requestAnimationFrame(function () { enhanceQueued = false; enhance(document.getElementById('main')); });
+  }).observe(document.getElementById('app') || document.body, { childList: true, subtree: true });
+
+  /** A slide-in panel that was open when the page was redrawn leaves its backdrop and scroll lock behind. */
+  function clearStrayBackdrops() {
+    if ($('.offcanvas.show, .offcanvas-lg.show, .modal.show')) { return; }
+    $$('.offcanvas-backdrop').forEach(function (b) { b.parentNode.removeChild(b); });
+    document.body.style.removeProperty('overflow');
+    document.body.style.removeProperty('padding-right');
+  }
+
   function initWidgets(root) {
+    enhance(root);
     $$('[data-bs-toggle="tooltip"]', root).forEach(function (el) { bootstrap.Tooltip.getOrCreateInstance(el); });
 
     $$('[data-select-table]', root).forEach(function (table) {

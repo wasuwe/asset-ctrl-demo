@@ -619,6 +619,7 @@ a.bar-seg:hover, a.bar-seg:focus-visible { filter: brightness(1.12) saturate(1.1
 }
 .ac-greeter > * { pointer-events: auto; }
 .modal-open .ac-greeter { display: none; } /* the modal header has its own PC; don't cover the dialog's buttons */
+body:has(.offcanvas.show, .offcanvas.showing, .offcanvas-lg.show, .offcanvas-lg.showing) .ac-greeter { display: none; } /* nor a slide-in menu / filter panel */
 .ac-greeter__pc { width: 128px; height: auto; display: block; margin-bottom: .25rem; }
 .ac-greeter__bubble {
   position: relative; margin-bottom: 5.5rem; padding: .7rem 2.1rem .75rem 1rem; max-width: 15rem;
@@ -718,3 +719,130 @@ a.bar-seg:hover, a.bar-seg:focus-visible { filter: brightness(1.12) saturate(1.1
 .demo-login-sub { color: var(--bs-body-color); margin: .1rem 0 .5rem; }
 .demo-login-list { display: flex; flex-wrap: wrap; gap: .5rem; }
 .demo-login .btn { --bs-btn-bg: var(--ac-surface); flex: 1 1 10rem; }
+
+/* ---------------------------------------------------------------- small screens (responsive) */
+/* Menu button: right-hand end of the top bar on every layout; the menu slides in from the right. */
+.burger { width: 2.5rem; height: 2.5rem; padding: 0; display: inline-grid; place-items: center; flex: none;
+  font-size: 1.4rem; line-height: 1; border-radius: .6rem; border: 1px solid var(--ac-line); background: var(--ac-surface); color: var(--bs-body-color); }
+.burger:hover, .burger:focus-visible { background: var(--ac-accent-soft); color: var(--ac-ink); }
+.filter-toggle { display: inline-flex; align-items: center; gap: .35rem; flex: none; }
+.filter-toggle .badge { font-size: .65rem; }
+.filter-toggle.has-active { border-color: var(--ac-accent); color: var(--ac-ink); background: var(--ac-accent-soft); }
+
+/* From 992px up the filter panel is not a panel: its controls sit in the filter bar as before. */
+@media (min-width: 992px) {
+  .filter-panel, .filter-panel > .filter-panel-body { display: contents !important; }
+}
+
+@media (max-width: 991.98px) {
+  /* Slide-in menus */
+  .app-sidebar.offcanvas-lg { width: min(86vw, 320px); --bs-offcanvas-width: min(86vw, 320px); border-right: 0; }
+  .mobile-bar { min-height: 3.5rem; }
+  .side-panel { --bs-offcanvas-width: min(86vw, 320px); background: var(--ac-sidebar); }
+  .side-panel .offcanvas-header { border-bottom: 1px solid var(--ac-line); }
+  .side-panel .offcanvas-body { display: flex; flex-direction: column; gap: .75rem; }
+  .side-panel .navbar-nav { gap: .15rem; }
+  .side-panel .navbar-nav .nav-link { display: block; width: 100%; padding: .65rem .75rem; border-radius: .5rem; color: var(--bs-body-color); }
+  .side-panel .navbar-nav .nav-link.active { background: var(--ac-accent-soft); color: var(--ac-ink); box-shadow: none; border-radius: .5rem; }
+  .panel-user { display: flex; align-items: center; gap: .65rem; padding-bottom: .75rem; border-bottom: 1px solid var(--ac-line); }
+  .panel-links .dropdown-item { padding: .6rem .75rem; border-radius: .5rem; }
+  .panel-tools { padding-top: .75rem; border-top: 1px solid var(--ac-line); }
+  .user-nav .navbar-nav .nav-link.active { box-shadow: none; }
+  /* backdrop-filter would make the bar the containing block of the fixed slide-in panel (panel clipped to the bar) */
+  .user-nav { backdrop-filter: none !important; background: var(--ac-sidebar); }
+
+  /* Page heading: actions wrap under the title, buttons share the width */
+  .page-head { gap: .75rem; }
+
+  /* KPI tiles: two per row (the later .kpis rule above would make them one per row) */
+  .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .6rem; }
+
+  /* Tabs: one row that scrolls sideways instead of wrapping onto several lines */
+  .nav-underline { flex-wrap: nowrap; overflow-x: auto; overflow-y: hidden; scrollbar-width: none; gap: 1.1rem; }
+  .nav-underline::-webkit-scrollbar { display: none; }
+  .nav-underline .nav-link { white-space: nowrap; }
+
+  /* Filter bar: search box + "Filters" button on one row, the rest in the slide-in panel */
+  .filter-bar.has-filter-panel { align-items: center; }
+  .filter-bar.has-filter-panel .search-wrap { flex: 1 1 10rem; min-width: 0; }
+  .filter-bar .search-wrap .form-control { font-size: .9rem; min-height: 2.35rem; }
+  .filter-bar .filter-toggle { min-height: 2.35rem; padding-inline: .8rem; }
+  .filter-panel { --bs-offcanvas-width: min(90vw, 360px); }
+  .filter-panel-body { display: flex; flex-direction: column; gap: .75rem; }
+  .filter-panel-body .form-select, .filter-panel-body .form-control { width: 100% !important; max-width: none; font-size: .95rem; min-height: 2.6rem; }
+  .filter-panel-body .input-group { width: 100% !important; flex-wrap: nowrap; }
+  .filter-panel-body .form-check { margin: .25rem 0 0 !important; }
+  .filter-panel-body .ticket-dates { display: flex !important; width: 100%; }
+  .filter-panel-foot { display: flex; gap: .5rem; padding: .75rem 1rem calc(.75rem + env(safe-area-inset-bottom)); border-top: 1px solid var(--ac-line); }
+
+  /* IT asset cards: asset no. + status on top, then the fields in a grid; empty fields hidden */
+  .asset-table tr { display: grid; grid-template-columns: repeat(auto-fill, minmax(9.5rem, 1fr)); gap: .45rem 1rem; padding: .75rem 1rem .8rem; }
+  .asset-table td.f-asset_no { padding-right: 5.5rem; }
+  .asset-table td { padding: 0; min-height: 0; }
+  .asset-table td::before { position: static; display: block; width: auto; font-size: .66rem; letter-spacing: .03em; text-transform: uppercase; margin-bottom: .05rem; }
+  .asset-table td.f-asset_no { grid-column: 1 / -1; order: -2; font-size: .95rem; }
+  .asset-table td.f-status { grid-column: 1 / -1; order: -1; }
+  .asset-table td.f-asset_no::before, .asset-table td.f-status::before { content: none; }
+  .asset-table td.f-description { grid-column: span 2; }
+  .asset-table td:empty, .asset-table td:has(> .cell-code:empty) { display: none; }
+  .asset-table .cell-code { max-width: none; }
+  .asset-table td.col-act .btn { width: 2.25rem; height: 2.25rem; }
+  .asset-table td.col-check { right: 3.9rem; top: 1.05rem; }
+  .asset-table td.col-check .form-check-input { width: 1.15rem; height: 1.15rem; }
+}
+
+@media (max-width: 575.98px) {
+  .asset-table tr { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 991.98px) {
+  /* Data tables become one card per row, every value labelled with its column */
+  .table-stack > thead { display: none; }
+  .table-stack, .table-stack > tbody, .table-stack > tbody > tr, .table-stack > tbody > tr > td { display: block; width: 100%; }
+  .table-stack > tbody > tr { position: relative; padding: .75rem 1rem; border-bottom: 1px solid var(--ac-line); }
+  .table-stack > tbody > tr:last-child { border-bottom: 0; }
+  .table-stack > tbody > tr > td { border: 0; padding: .1rem 0; text-align: left !important; white-space: normal !important; min-width: 0 !important; box-shadow: none; }
+  .table-stack > tbody > tr > td[data-label] { position: relative; padding-left: 7.5rem; min-height: 1.4rem; }
+  .table-stack > tbody > tr > td[data-label]::before { content: attr(data-label); position: absolute; left: 0; top: .22rem; width: 7rem;
+    font-size: .72rem; color: var(--bs-secondary-color); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .table-stack > tbody > tr > td.stack-primary { font-size: .95rem; padding-bottom: .4rem; padding-right: 2rem; }
+  .table-stack > tbody > tr > td.stack-check { position: absolute; top: .8rem; right: 1rem; width: auto; padding: 0; }
+  .table-stack > tbody > tr > td.stack-full { text-align: center !important; padding: 1.5rem 0; }
+  .table-stack > tbody > tr > td:empty { display: none; }
+  .table-stack > tbody > tr > td:not([data-label]):not(.stack-primary):not(.stack-check) .btn { margin-top: .35rem; }
+  .table-stack .cell-sub { white-space: normal; }
+  /* Tables without a header row (short key/value lists): let the cells wrap */
+  .table-wrap-sm td { white-space: normal !important; }
+  .table-wrap-sm tr { display: flex; flex-wrap: wrap; column-gap: .75rem; padding: .5rem .25rem; border-bottom: 1px solid var(--ac-line); }
+  .table-wrap-sm td { border: 0; padding: 0 !important; }
+}
+
+/* Page heading buttons on phones: one full-width row, every button the same height and size,
+   two per row at most (a single button fills the row). */
+@media (max-width: 575.98px) {
+  .page-head { align-items: stretch; }
+  .page-head > div:first-child { width: 100%; }
+  .page-actions { width: 100%; gap: .5rem !important; }
+  .page-actions > .btn, .page-actions > a.btn, .page-actions > .dropdown, .page-actions > .btn-group { flex: 1 1 calc(50% - .25rem); min-width: 0; }
+  .page-actions .btn { display: inline-flex; align-items: center; justify-content: center; gap: .35rem;
+    min-height: 2.6rem; padding: .45rem .75rem; font-size: .9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .page-actions .btn > .bi { margin: 0 !important; flex: none; }
+  .page-actions > .dropdown > .btn, .page-actions > .btn-group > .btn { width: 100%; }
+}
+
+@media (max-width: 991.98px) {
+  /* Counts such as "4 account(s)" go under the search row instead of squeezing the search box */
+  .filter-bar.has-filter-panel > span.ms-auto, .filter-bar.has-filter-panel > .small.text-secondary { flex-basis: 100%; margin-left: 0 !important; }
+}
+@media (max-width: 991.98px) {
+  .table-stack > tbody > tr > td.stack-hide { display: none; }
+}
+@media (max-width: 575.98px) {
+  .error-actions { max-width: 22rem; }
+  .error-page .page-actions .btn { padding: .45rem .75rem; font-size: .9rem; }
+}
+@media (max-width: 991.98px) {
+  /* The user/public panel lives inside the sticky top bar, so it stacks with the bar: lift the bar
+     above the demo strip and the page backdrop while its panel is open. */
+  .user-nav:has(.offcanvas.show, .offcanvas.showing, .offcanvas.hiding) { z-index: 1046; }
+}
