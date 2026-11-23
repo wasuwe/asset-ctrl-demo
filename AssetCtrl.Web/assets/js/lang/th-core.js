@@ -37,6 +37,9 @@ ACI18N.add('th', {
   'English': 'English',
   'Dark mode': 'โหมดมืด',
   'Show results': 'แสดงผล',
+  'Previous page': 'หน้าก่อน',
+  'Next page': 'หน้าถัดไป',
+  'Pages': 'หน้า',
   'Filters': 'ตัวกรอง',
   'Light mode': 'โหมดสว่าง',
 

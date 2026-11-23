@@ -299,21 +299,37 @@
       return html`<div class="skeleton" role="status" aria-busy="true"><span class="visually-hidden">${t('Loading…')}</span>${body}</div>`;
     },
     /** Pagination for a { pager } payload; keeps current query params. */
-    pager: function (p) {
-      if (!p || p.pages <= 1) {
-        return p ? html`<div class="small text-secondary mt-2">${t('{n} item(s)', { n: AC.fmt.number(p.total) })}</div>` : '';
+    /**
+     * Footer under a list: "1–25 of 68", page buttons with ‹ ›, and (per = { options, current })
+     * a "Rows per page" choice. Pages two away from the current one (.page-far) are hidden on
+     * phones so the row always fits: ‹ 1 … 4 5 6 … 10 ›.
+     */
+    pager: function (p, per) {
+      if (!p) { return ''; }
+      var perCtl = per && per.options && per.options.length && p.total > Math.min.apply(null, per.options)
+        ? html`<div class="per-page"><span class="per-page-label">Rows per page</span><div class="per-page-seg" role="group" aria-label="${t('Rows per page')}">${per.options.map(function (n) {
+            return html`<a class="${n === per.current ? 'active' : ''}" href="${AC.linkWith({ per: n, page: '' })}" ${n === per.current ? AC.raw('aria-current="true"') : ''}>${n}</a>`;
+          })}</div></div>` : '';
+      if (p.pages <= 1) {
+        return html`<div class="pager-bar is-single"><div class="pager-info">${t('{n} item(s)', { n: AC.fmt.number(p.total) })}</div>${perCtl}</div>`;
       }
       var items = [], last = 0;
       for (var i = 1; i <= p.pages; i++) {
-        if (i === 1 || i === p.pages || Math.abs(i - p.page) <= 2) {
-          if (last && i - last > 1) { items.push(html`<li class="page-item disabled"><span class="page-link">…</span></li>`); }
-          items.push(html`<li class="page-item ${i === p.page ? 'active' : ''}"><a class="page-link" href="${AC.linkWith({ page: i })}">${i}</a></li>`);
+        var dist = Math.abs(i - p.page);
+        if (i === 1 || i === p.pages || dist <= 2) {
+          if (last && i - last > 1) { items.push(html`<li class="page-item page-gap"><span class="page-link">…</span></li>`); }
+          items.push(html`<li class="page-item ${i === p.page ? 'active' : ''} ${dist === 2 && i !== 1 && i !== p.pages ? 'page-far' : ''}"><a class="page-link" href="${AC.linkWith({ page: i })}" ${i === p.page ? AC.raw('aria-current="page"') : ''}>${i}</a></li>`);
           last = i;
         }
       }
-      return html`<div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mt-3">
-        <div class="small text-secondary">${t('{from}–{to} of {total}', { from: AC.fmt.number(p.from), to: AC.fmt.number(p.to), total: AC.fmt.number(p.total) })}</div>
-        <ul class="pagination pagination-sm mb-0">${items}</ul></div>`;
+      var step = function (page, icon, label, off) {
+        return off ? html`<li class="page-item page-step disabled"><span class="page-link" aria-hidden="true"><i class="bi ${icon}"></i></span></li>`
+          : html`<li class="page-item page-step"><a class="page-link" href="${AC.linkWith({ page: page })}" aria-label="${t(label)}" title="${t(label)}"><i class="bi ${icon}"></i></a></li>`;
+      };
+      return html`<nav class="pager-bar" aria-label="${t('Pages')}">
+        <div class="pager-info">${t('{from}–{to} of {total}', { from: AC.fmt.number(p.from), to: AC.fmt.number(p.to), total: AC.fmt.number(p.total) })}</div>
+        <ul class="pagination mb-0">${step(p.page - 1, 'bi-chevron-left', 'Previous page', p.page <= 1)}${items}${step(p.page + 1, 'bi-chevron-right', 'Next page', p.page >= p.pages)}</ul>
+        ${perCtl}</nav>`;
     },
     /** Column header that toggles ?sort=key&dir=asc|desc */
     sortLink: function (key, label) {
@@ -1165,7 +1181,7 @@
    * summary tables that already fit). Tables without a header just wrap their cells.
    */
   function enhanceTables(root) {
-    $$('table.table:not(.asset-table):not(.table-fit):not([data-stacked])', root).forEach(function (table) {
+    $$('table.table:not(.asset-table):not(.ticket-table):not(.table-fit):not([data-stacked])', root).forEach(function (table) {
       table.setAttribute('data-stacked', '');
       var head = $('thead tr', table);
       if (!head) { table.classList.add('table-wrap-sm'); return; }

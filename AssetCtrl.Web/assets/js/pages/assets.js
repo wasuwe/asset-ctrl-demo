@@ -157,12 +157,8 @@
       </table></div>`;
   }
 
-  function perPageButtons(options, current) {
-    return html`<div class="btn-group btn-group-sm" role="group" aria-label="Rows per page">
-      ${options.map(function (n) {
-        return html`<a class="btn btn-outline-secondary ${n === current ? 'active' : ''}" href="${AC.linkWith({ per: n, page: '' })}">${n}</a>`;
-      })}</div>`;
-  }
+  /** "Rows per page" choice for the list footer (AC.ui.pager). */
+  function perOf(d) { return { options: d.per_page_options, current: d.per_page }; }
 
   /**
    * Monthly check legend: green rows were saved by a User (department) this month, yellow not yet.
@@ -202,7 +198,6 @@
           <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 small text-secondary mb-2">
             ${checkLegend(d.check_summary)}
             <span class="d-none d-xl-inline">Tick rows to edit several at once. Shift-click selects a range. Press <kbd>/</kbd> to search.</span>
-            ${perPageButtons(d.per_page_options, d.per_page)}
           </div>
           ${assetTable(d.rows, 'admin', true, d.pager.from)}
           <div class="bulk-bar d-none d-flex flex-wrap align-items-center gap-3 mt-3" id="bulk-bar">
@@ -212,7 +207,7 @@
             <button type="button" class="btn btn-light btn-sm" data-action="asset-bulk" data-total="${p.total}"><i class="bi bi-pencil-square me-1"></i>Edit selected</button>
             <button type="button" class="btn btn-outline-light btn-sm" data-clear-selection>Cancel</button>
           </div>
-          ${AC.ui.pager(p)}`.toString();
+          ${AC.ui.pager(p, perOf(d))}`.toString();
       });
     },
   });
@@ -229,11 +224,10 @@
           ${filterBar('user/assets', d.filter, d.options)}
           <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
             ${checkLegend(d.check_summary)}
-            ${perPageButtons(d.per_page_options, d.per_page)}
           </div>
           ${AC.can('assets.edit') ? html`<p class="small text-secondary mb-2">Once a month, open each asset with the pencil button, check it and press Save. The row turns green even if nothing changed.</p>` : ''}
           ${assetTable(d.rows, 'user', false, d.pager.from)}
-          ${AC.ui.pager(d.pager)}`.toString();
+          ${AC.ui.pager(d.pager, perOf(d))}`.toString();
       });
     },
   });
@@ -251,10 +245,9 @@
         ${filterBar('assets', d.filter, d.options)}
         <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
           ${checkLegend(d.check_summary)}
-          ${perPageButtons(d.per_page_options, d.per_page)}
         </div>
         ${assetTable(d.rows, 'public', false, d.pager.from)}
-        ${AC.ui.pager(d.pager)}`.toString();
+        ${AC.ui.pager(d.pager, perOf(d))}`.toString();
     });
   }
   AC.renderPublicAssets = renderPublicAssets;

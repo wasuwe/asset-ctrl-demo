@@ -846,3 +846,123 @@ body:has(.offcanvas.show, .offcanvas.showing, .offcanvas-lg.show, .offcanvas-lg.
      above the demo strip and the page backdrop while its panel is open. */
   .user-nav:has(.offcanvas.show, .offcanvas.showing, .offcanvas.hiding) { z-index: 1046; }
 }
+
+/* ---------------------------------------------------------------- list footer: pages + rows per page */
+.pager-bar { display: grid; grid-template-columns: 1fr auto 1fr; grid-template-areas: "info pages per"; align-items: center; gap: .75rem 1rem; margin-top: 1rem; }
+.pager-bar.is-single { grid-template-columns: 1fr auto; grid-template-areas: "info per"; }
+.pager-info { grid-area: info; font-size: .8rem; color: var(--bs-secondary-color); font-feature-settings: "tnum" 1; }
+.pager-bar .pagination { grid-area: pages; justify-content: center; flex-wrap: nowrap; gap: .3rem; }
+.pager-bar .page-link { min-width: 2.25rem; height: 2.25rem; padding: 0 .5rem; display: grid; place-items: center; font-size: .85rem;
+  border: 1px solid var(--ac-line); background: var(--ac-surface); }
+.pager-bar .page-item.active .page-link { border-color: var(--ac-ink); background: var(--ac-ink); color: var(--ac-surface); font-weight: 600; }
+.pager-bar .page-gap .page-link { border-color: transparent; background: transparent; min-width: 1.25rem; padding: 0; color: var(--bs-secondary-color); }
+.pager-bar .page-step .page-link { font-size: .8rem; color: var(--bs-body-color); }
+.pager-bar .page-step.disabled .page-link { opacity: .4; background: transparent; }
+.per-page { grid-area: per; justify-self: end; display: inline-flex; align-items: center; gap: .5rem; font-size: .8rem; color: var(--bs-secondary-color); }
+.per-page-seg { display: inline-flex; padding: .15rem; border-radius: .55rem; background: var(--ac-neutral-bg); border: 1px solid var(--ac-line); }
+.per-page-seg a { min-width: 2.4rem; padding: .25rem .55rem; border-radius: .4rem; text-align: center; font-family: var(--bs-font-monospace); font-size: .8rem; color: var(--bs-body-color); text-decoration: none; }
+.per-page-seg a:hover { background: var(--ac-surface); }
+.per-page-seg a.active { background: var(--ac-surface); color: var(--ac-ink); font-weight: 600; box-shadow: var(--ac-shadow-sm); }
+@media (max-width: 767.98px) {
+  .pager-bar { grid-template-columns: 1fr auto; grid-template-areas: "pages pages" "info per"; }
+  .pager-bar.is-single { grid-template-areas: "info per"; }
+  .pager-bar .page-link { min-width: 2.5rem; height: 2.5rem; }
+  .pager-bar .page-far { display: none; }
+  .per-page-label { display: none; }
+}
+
+/* ---------------------------------------------------------------- repair ticket cards (phones / tablets) */
+@media (max-width: 991.98px) {
+  .ticket-table > thead { display: none; }
+  .ticket-table, .ticket-table > tbody { display: block; width: 100%; }
+  .ticket-table > tbody > tr { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas: "title title" "status queue" "device assignee"; gap: .55rem 1rem; padding: .85rem 1rem; border-bottom: 1px solid var(--ac-line); }
+  .ticket-table > tbody > tr:last-child { border-bottom: 0; }
+  .ticket-table > tbody > tr > td { display: block; padding: 0; border: 0; min-width: 0 !important; white-space: normal; box-shadow: none; }
+  .ticket-table > tbody > tr > td[colspan] { grid-column: 1 / -1; text-align: center; padding: 1.5rem 0; }
+  .ticket-table .t-title { grid-area: title; padding-right: 2rem; }
+  .ticket-table .t-title > a { font-size: 1rem; line-height: 1.35; display: block; margin-bottom: .15rem; }
+  .ticket-table .t-title .cell-sub { font-size: .75rem; line-height: 1.5; }
+  .ticket-table .t-status { grid-area: status; align-self: center; }
+  .ticket-table .t-queue { grid-area: queue; align-self: center; justify-self: end; text-align: right; display: flex !important; align-items: center; gap: .4rem; }
+  .ticket-table .t-queue .cell-sub { margin: 0; }
+  .ticket-table .t-queue:has(> .text-secondary:only-child) { display: none !important; } /* no queue: no lone dash */
+  .ticket-table .t-device { grid-area: device; padding-top: .55rem !important; border-top: 1px dashed var(--ac-line) !important; }
+  .ticket-table .t-assignee { grid-area: assignee; justify-self: stretch; text-align: right; padding-top: .55rem !important; border-top: 1px dashed var(--ac-line) !important; }
+  .ticket-table .t-assignee::before { content: attr(data-label); display: block; font-size: .68rem; color: var(--bs-secondary-color); }
+  .ticket-table .t-device .cell-sub { font-size: .75rem; }
+  .ticket-table td.col-check { position: absolute; top: .9rem; right: 1rem; }
+  .ticket-table td.col-check .form-check-input { width: 1.15rem; height: 1.15rem; }
+  .ticket-table tr.table-active { background: var(--ac-accent-soft); }
+}
+
+/* ---------------------------------------------------------------- IT asset cards (below 1280px)
+   1. asset no. (+ open ticket)        [select][edit]
+   2. description                      status
+   3. where it is: location · building · area   (tinted strip)
+   4. Work Center · type
+   5. details in small print: fixed asset, OS, type PC, member, last use, remark
+   Fields with no value are hidden. */
+@media (max-width: 1279.98px) {
+  .asset-table > tbody > tr { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); column-gap: .75rem; row-gap: .5rem;
+    grid-template-areas:
+      "no   no   no   no   no   no"
+      "desc desc desc desc st   st"
+      "loc  loc  bld  bld  area area"
+      "wc   wc   wc   type type type"
+      "fix  fix  fix  pct  pct  pct"
+      "os   os   os   osv  osv  osv"
+      "mem  mem  mem  last last last"
+      "rem  rem  rem  rem  rem  rem";
+    padding: .9rem 1rem 1rem; }
+  .asset-table > tbody > tr > td { padding: 0; min-height: 0; overflow-wrap: break-word; }
+  .asset-table > tbody > tr > td::before { position: static; display: block; width: auto; margin-bottom: .1rem;
+    font-size: .7rem; letter-spacing: 0; text-transform: none; color: var(--bs-secondary-color); }
+  .asset-table td.f-asset_no { grid-area: no; font-size: 1.05rem; padding-right: 5.75rem; display: flex; flex-wrap: wrap; align-items: center; gap: .25rem .6rem; }
+  .asset-table td.f-asset_no .ticket-tag { margin: 0; font-size: .75rem; }
+  .asset-table td.f-description { grid-area: desc; font-size: .92rem; font-weight: 500; align-self: center; }
+  .asset-table td.f-status { grid-area: st; justify-self: end; align-self: center; }
+  .asset-table td.f-asset_no::before, .asset-table td.f-status::before, .asset-table td.f-description::before { content: none; }
+  /* where it is */
+  .asset-table td.f-location { grid-area: loc; }
+  .asset-table td.f-building { grid-area: bld; }
+  .asset-table td.f-area     { grid-area: area; }
+  .asset-table td.f-location, .asset-table td.f-building, .asset-table td.f-area {
+    background: color-mix(in srgb, var(--ac-surface) 70%, transparent); border-radius: .45rem; padding: .35rem .5rem; font-weight: 600; font-size: .85rem; }
+  .asset-table td.f-location .cell-code, .asset-table td.f-building .cell-code { font-size: .85rem; }
+  /* ownership */
+  .asset-table td.f-work_center { grid-area: wc; font-size: .85rem; }
+  .asset-table td.f-asset_type  { grid-area: type; font-size: .85rem; }
+  /* details, small print */
+  .asset-table td.f-fix_no      { grid-area: fix; }
+  .asset-table td.f-pc_type     { grid-area: pct; }
+  .asset-table td.f-os_name     { grid-area: os; }
+  .asset-table td.f-os_version  { grid-area: osv; }
+  .asset-table td.f-editor_note { grid-area: mem; }
+  .asset-table td.f-last_use    { grid-area: last; }
+  .asset-table td.f-remark      { grid-area: rem; }
+  .asset-table td.f-fix_no, .asset-table td.f-pc_type, .asset-table td.f-os_name, .asset-table td.f-os_version,
+  .asset-table td.f-editor_note, .asset-table td.f-last_use, .asset-table td.f-remark { font-size: .78rem; color: var(--bs-secondary-color); }
+  .asset-table td.f-fix_no .cell-code { font-size: .78rem; }
+  .asset-table td.f-work_center { padding-top: .5rem !important; border-top: 1px dashed var(--ac-line); }
+  .asset-table td.f-asset_type  { padding-top: .5rem !important; border-top: 1px dashed var(--ac-line); }
+  .asset-table td.col-act { top: .75rem; right: .85rem; }
+  .asset-table td.col-check { top: 1.2rem; right: 3.6rem; }
+}
+@media (max-width: 1279.98px) {
+  .asset-table .cell-code { max-width: none; }
+  .asset-table > tbody > tr > td:empty, .asset-table > tbody > tr > td:has(> .cell-code:empty) { display: none; }
+}
+/* Wider cards (tablet / small laptop): the same groups on fewer rows */
+@media (min-width: 768px) and (max-width: 1279.98px) {
+  .asset-table > tbody > tr {
+    grid-template-areas:
+      "no   no   no   no   no   no"
+      "desc desc desc desc st   st"
+      "loc  bld  area wc   wc   type"
+      "fix  pct  os   osv  mem  last"
+      "rem  rem  rem  rem  rem  rem"; }
+  .asset-table td.f-work_center, .asset-table td.f-asset_type { padding: .35rem .5rem !important; border-top: 0; align-self: stretch; }
+  .asset-table td.f-fix_no, .asset-table td.f-pc_type, .asset-table td.f-os_name, .asset-table td.f-os_version,
+  .asset-table td.f-editor_note, .asset-table td.f-last_use { padding-top: .5rem !important; border-top: 1px dashed var(--ac-line); }
+}

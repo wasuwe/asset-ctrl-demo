@@ -103,18 +103,18 @@
     var body = rows.length ? rows.map(function (t) {
       return html`<tr>
         ${selectable ? html`<td class="col-check"><input class="form-check-input" type="checkbox" name="ids[]" value="${t.id}" aria-label="${AC.t('Select {no}', { no: t.ticket_no })}"></td>` : ''}
-        <td style="min-width:260px">
+        <td class="t-title" style="min-width:260px">
           <a class="fw-semibold text-body text-decoration-none" href="${AC.link(ar + '/tickets/show', { id: t.id })}">${t.title}</a>
           <span class="cell-sub"><span class="font-monospace">${t.ticket_no}</span> · Flowlites <span class="font-monospace">${t.flolites_no || '—'}</span> · ${AC.ui.priorityBadge(t.priority)} · ${t.reporter_name || t.contact_name}</span>
         </td>
-        <td class="text-nowrap">
+        <td class="t-device text-nowrap">
           ${assetLink(t)}
           <span class="cell-sub">${t.work_center ? wcText(t) : html`<span class="text-secondary">No Work Center</span>`}</span>
         </td>
-        <td>${AC.ui.ticketBadge(t.status)}</td>
-        <td class="text-nowrap">${queueCell(t)}</td>
-        <td class="text-nowrap">${t.assignee_name ? t.assignee_name : html`<span class="text-secondary">Nobody yet</span>`}</td>
-        <td class="d-none d-lg-table-cell small text-nowrap">${fmt.datetime(t.created_at)}${t.is_open ? html`<span class="cell-sub">Open for ${fmt.between(t.created_at)}</span>` : ''}</td>
+        <td class="t-status">${AC.ui.ticketBadge(t.status)}</td>
+        <td class="t-queue text-nowrap">${queueCell(t)}</td>
+        <td class="t-assignee text-nowrap" data-label="${AC.t('Assignee')}">${t.assignee_name ? t.assignee_name : html`<span class="text-secondary">Nobody yet</span>`}</td>
+        <td class="t-reported d-none d-lg-table-cell small text-nowrap">${fmt.datetime(t.created_at)}${t.is_open ? html`<span class="cell-sub">Open for ${fmt.between(t.created_at)}</span>` : ''}</td>
         <td class="d-none d-xl-table-cell small text-secondary text-nowrap">${fmt.ago(t.updated_at)}</td>
       </tr>`;
     }) : AC.ui.empty(AC.t('No tickets in this view.'), selectable ? 8 : 7);
