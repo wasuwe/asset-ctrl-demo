@@ -10,9 +10,9 @@
   /* ---------------------------------------------------------------- login */
 
   /**
-   * Sign in is a modal over the public overview:
+   * Sign in is a modal over the public asset list (#/assets):
    *   - the "Sign in" button (data-action="login") opens it;
-   *   - #/login?next=... (sent here when a page needs sign-in) shows the overview with the modal open,
+   *   - #/login?next=... (sent here when a page needs sign-in) shows the asset list with the modal open,
    *     and after signing in goes on to "next" if it belongs to the user's area.
    */
   function openLogin(next) {
@@ -47,7 +47,7 @@
     area: 'public', title: 'Sign in',
     render: function (ctx) {
       if (AC.state.user) { AC.go(AC.home()); return; }
-      return renderOverview(ctx).then(function () { openLogin(ctx.query.next || ''); });
+      return AC.renderPublicAssets(ctx).then(function () { openLogin(ctx.query.next || ''); });
     },
   });
 

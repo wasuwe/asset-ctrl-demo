@@ -604,7 +604,7 @@
     if (location.hash === target) { AC.refresh(); } else { location.hash = target; }
   };
 
-  function homeFor(user) { return !user ? 'dashboard' : (user.is_admin ? 'admin/dashboard' : 'user/home'); }
+  function homeFor(user) { return !user ? 'assets' : (user.is_admin ? 'admin/dashboard' : 'user/home'); }
   AC.home = function () { return homeFor(state.user); };
   AC.can = function (ability) { return !!(state.user && state.user.abilities.indexOf(ability) !== -1); };
 
@@ -853,7 +853,7 @@
 <main class="container-fluid px-lg-4 page-wrap py-4" id="main"></main>`);
       } else if (area === 'public') {
         app.innerHTML = toHtml(html`<nav class="navbar user-nav py-2"><div class="container-fluid px-lg-4">
-    <a class="brand" href="${AC.link('dashboard')}"><span class="brand-mark"></span>${appName}</a>
+    <a class="brand" href="${AC.link('assets')}"><span class="brand-mark"></span>${appName}</a>
     <div class="d-flex align-items-center gap-2">${AC.themeButton()}${AC.langSwitch()}
     ${state.user ? html`<a class="btn btn-outline-secondary btn-sm" href="${AC.link(AC.home())}">Back to work</a>`
       : html`<button type="button" class="btn btn-primary btn-sm" data-action="login">Sign in</button>`}</div>

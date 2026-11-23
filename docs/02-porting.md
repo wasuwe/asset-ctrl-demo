@@ -16,7 +16,7 @@ same structure, names (PascalCase methods), comments and behaviour. Do not redes
 | `app/Models/X.php` | `AssetCtrl.Web/Models/*` (`AssetCtrl.Models`) |
 
 Ignore `app/Controllers/*` and `views/*` (old server-rendered pages, not used by the API).
-The csproj compiles `**\*.cs`, so new files need no csproj edit.
+The csproj lists every file (`<Compile Include="..." />`), so add each new .cs file to it.
 
 ## Core types (already written — read them first)
 

@@ -434,8 +434,8 @@
 
   /* --------------------------------------------------------------- assets */
 
-  function assetOptions(rows) {
-    var wcs = isAdmin() ? data().wcs : data().wcs.filter(function (w) { return me().wcs.indexOf(w.code) !== -1; });
+  function assetOptions(rows, all) {
+    var wcs = all || isAdmin() ? data().wcs : data().wcs.filter(function (w) { return me().wcs.indexOf(w.code) !== -1; });
     var col = function (k) { return uniq(rows.map(function (a) { return a[k]; })); };
     var masters = {};
     Object.keys(data().masters).forEach(function (k) {
@@ -471,8 +471,8 @@
     return rows.slice().sort(function (a, b) { return String(a[k] || '').localeCompare(String(b[k] || '')) * m; });
   }
 
-  function assetList(q) {
-    var base = visibleAssets();
+  function assetList(q, all) {
+    var base = all ? data().assets : visibleAssets();
     var rows = sortRows(filterAssets(base, q), q.sort, q.dir);
     var per = [25, 50, 100].indexOf(Number(q.per)) !== -1 ? Number(q.per) : 25;
     var out = paged(rows.map(av), q, per);
@@ -480,10 +480,19 @@
     ['q', 'status', 'wc', 'location', 'building', 'type', 'pc_type', 'os', 'has_ticket', 'checked'].forEach(function (k) { f[k] = q[k] || ''; });
     var summaryRows = filterAssets(base, Object.assign({}, q, { checked: '' }));
     out.filter = f;
-    out.options = assetOptions(base);
+    out.options = assetOptions(base, all);
     out.per_page = per;
     out.per_page_options = [25, 50, 100];
     out.check_summary = { done: sum(summaryRows, function (a) { return isThisMonth(a.user_checked_at); }), total: summaryRows.length };
+    return out;
+  }
+
+  /** Columns the public list (before sign-in) gets, as PublicAssetController sends them. */
+  var PUBLIC_COLUMNS = ['asset_type', 'asset_no', 'fix_no', 'description', 'os_name', 'os_version', 'department', 'pc_type',
+    'building', 'location', 'area', 'remark', 'status', 'editor_note', 'last_use', 'open_ticket_no', 'checked_this_month'];
+  function publicAssetList(q) {
+    var out = assetList(q, true);
+    out.rows = out.rows.map(function (r) { var o = {}; PUBLIC_COLUMNS.forEach(function (k) { o[k] = r[k]; }); return o; });
     return out;
   }
 
@@ -1219,7 +1228,7 @@
   function demoNote() { return ' ' + T('(Demo mode: kept until the page is reloaded.)'); }
   function noop() { return ok(T('Demo mode: nothing was saved.')); }
 
-  var PUBLIC_GET = ['session', 'dashboard'];
+  var PUBLIC_GET = ['session', 'dashboard', 'public/assets'];
 
   var GET = {
     'session': function () { return { user: sessionUser(), csrf: 'demo-csrf-token', meta: meta(), demo: true }; },
@@ -1227,7 +1236,8 @@
     'dashboard': function () { return dashboard(false); },
     'admin/dashboard': function () { return dashboard(true); },
     'user/home': userHome,
-    'admin/assets': assetList, 'user/assets': assetList,
+    'admin/assets': function (q) { return assetList(q); }, 'user/assets': function (q) { return assetList(q); },
+    'public/assets': publicAssetList,
     'admin/assets/show': assetShow, 'user/assets/show': assetShow,
     'admin/assets/form': assetForm, 'user/assets/form': assetForm,
     'lookup/assets': lookupAssets,

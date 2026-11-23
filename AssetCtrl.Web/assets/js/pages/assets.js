@@ -6,6 +6,7 @@
  *   #/admin/assets/show?id=   detail (fields, history with field tabs, tickets)
  *   #/user/assets             list limited to the user's Work Centers
  *   #/user/assets/show?id=    detail
+ *   #/assets                  front page before sign-in: read-only list of every Work Center (API public/assets)
  *
  * Actions (data-action):
  *   asset-create                         admin: new asset modal
@@ -117,12 +118,13 @@
    */
   function assetTable(rows, ar, selectable, firstNo) {
     var s = AC.ui.sortLink;
-    var canEdit = AC.can('assets.edit');
+    var pub = ar === 'public';
+    var canEdit = !pub && AC.can('assets.edit');
     var cols = [
       // [sort key, header label, cell renderer, extra td class]
       ['asset_type', 'Type', function (a) { return html`<span class="font-monospace cell-code" title="${a.asset_type}">${a.asset_type}</span>`; }],
       ['asset_no', 'IT Asset', function (a) {
-        return html`<a class="asset-no" href="${AC.link(ar + '/assets/show', { id: a.id })}">${a.asset_no}</a>${a.open_ticket_no
+        return html`${pub ? html`<span class="asset-no">${a.asset_no}</span>` : html`<a class="asset-no" href="${AC.link(ar + '/assets/show', { id: a.id })}">${a.asset_no}</a>`}${a.open_ticket_no
           ? html`<span class="ticket-tag" title="${AC.t('Has an open repair ticket')}"><i class="bi bi-tools"></i> ${a.open_ticket_no}</span>` : ''}`;
       }, 'col-asset'],
       ['fix_no', 'Fixed Asset', function (a) { return html`<span class="font-monospace cell-code" title="${a.fix_no}">${a.fix_no}</span>`; }],
@@ -243,6 +245,29 @@
       });
     },
   });
+
+  /**
+   * Front page before sign-in: the same list as "My assets", over every Work Center, read-only
+   * (no edit, export or detail page). Also the page behind the sign-in modal (#/login).
+   */
+  function renderPublicAssets(ctx) {
+    return AC.api.get('public/assets', ctx.query).then(function (d) {
+      if (ctx.stale && ctx.stale()) { return; }
+      ctx.main.innerHTML = html`
+        ${c.pageHead(AC.t('IT assets'), html`All Work Centers · ${shownText(d.pager)} · Read-only. Sign in to report a problem or edit.`,
+          html`<a class="btn btn-outline-secondary" href="${AC.link('dashboard')}"><i class="bi bi-bar-chart me-1"></i>Overview</a>`)}
+        ${filterBar('assets', d.filter, d.options)}
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
+          ${checkLegend(d.check_summary)}
+          ${perPageButtons(d.per_page_options, d.per_page)}
+        </div>
+        ${assetTable(d.rows, 'public', false, d.pager.from)}
+        ${AC.ui.pager(d.pager)}`.toString();
+    });
+  }
+  AC.renderPublicAssets = renderPublicAssets;
+
+  AC.route('assets', { area: 'public', title: AC.t('IT assets'), render: renderPublicAssets });
 
   /* ----------------------------------------------------------- detail page */
 

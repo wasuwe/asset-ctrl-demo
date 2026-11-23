@@ -68,6 +68,8 @@ ACI18N.add('th', {
   'found': 'รายการ',
   '· showing {from}–{to}': '· แสดง {from}–{to}',
   'All Work Centers ·': 'ทุก Work Center ·',
+  '· Read-only. Sign in to report a problem or edit.': '· ดูได้อย่างเดียว เข้าสู่ระบบเพื่อแจ้งซ่อมหรือแก้ไข',
+  'Overview': 'ภาพรวม',
   'Add asset': 'เพิ่มทรัพย์สิน',
   'selected': 'รายการที่เลือก',
   'Select all': 'เลือกทั้งหมด',

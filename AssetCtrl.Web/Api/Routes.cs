@@ -35,7 +35,8 @@ namespace AssetCtrl.Api
              .Post("user/assets/save", "AssetController", "save")
              .Get("export/info", "ExportController", "info")
              .Get("export/download", "ExportController", "download")
-             .Get("lookup/assets", "LookupController", "assets");
+             .Get("lookup/assets", "LookupController", "assets")
+             .Get("public/assets", "PublicAssetController", "index");
 
             // Repair tickets and the Setting Room
             r.Get("admin/tickets", "TicketController", "adminIndex")

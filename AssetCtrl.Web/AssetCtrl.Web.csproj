@@ -75,6 +75,7 @@
     <Compile Include="Api\Controllers\ImportController.cs" />
     <Compile Include="Api\Controllers\LookupController.cs" />
     <Compile Include="Api\Controllers\MasterController.cs" />
+    <Compile Include="Api\Controllers\PublicAssetController.cs" />
     <Compile Include="Api\Controllers\ReceivingController.cs" />
     <Compile Include="Api\Controllers\SessionController.cs" />
     <Compile Include="Api\Controllers\TicketController.cs" />

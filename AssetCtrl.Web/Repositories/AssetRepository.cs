@@ -135,13 +135,14 @@ namespace AssetCtrl.Repositories
         /// Values for filter dropdowns (within the user's scope).
         /// work_centers: [{id, code, name}] — every Work Center for admins, the granted ones for users.
         /// </summary>
+        /// <summary>Filter lists (Work Centers, locations …) within the user's scope; auth null = every Work Center (public list).</summary>
         public Row FilterOptions(Auth auth)
         {
             var p = new Row();
             string scope = "1 = 1";
             string wcWhere = "1 = 1";
             var wcParams = new Row();
-            if (!auth.SeesAll())
+            if (auth != null && !auth.SeesAll())
             {
                 scope = auth.ScopeSql(p, "a.work_center_id");
                 wcWhere = auth.ScopeSql(wcParams, "w.id");
