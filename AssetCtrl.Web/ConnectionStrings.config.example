@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copy this file to ConnectionStrings.config (git-ignored) and fill in your PostgreSQL details.
+     If it cannot connect, the app opens in Demo mode (sample data). -->
+<connectionStrings>
+  <add name="AssetCtrl"
+       connectionString="Host=localhost;Port=5432;Database=asset_ctrl_demo;Username=demo_user;Password=demo_password;Timezone=Asia/Bangkok;Timeout=5"
+       providerName="Npgsql" />
+</connectionStrings>

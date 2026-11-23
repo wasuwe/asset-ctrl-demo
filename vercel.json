@@ -1,0 +1,13 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": null,
+  "installCommand": "",
+  "buildCommand": "node tools/build-demo.js",
+  "outputDirectory": "dist",
+  "rewrites": [
+    { "source": "/api.ashx", "destination": "/api-demo.json" }
+  ],
+  "headers": [
+    { "source": "/api-demo.json", "headers": [{ "key": "Cache-Control", "value": "no-store" }] }
+  ]
+}

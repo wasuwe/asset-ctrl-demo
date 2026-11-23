@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion />
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{7C1D2E4A-5B6F-4A8C-9D0E-1F2A3B4C5D6E}</ProjectGuid>
+    <ProjectTypeGuids>{349c5851-65df-11da-9384-00065b846f21};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>AssetCtrl</RootNamespace>
+    <AssemblyName>AssetCtrl.Web</AssemblyName>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <LangVersion>7.3</LangVersion>
+    <UseIISExpress>true</UseIISExpress>
+    <Use64BitIISExpress />
+    <IISExpressSSLPort />
+    <IISExpressAnonymousAuthentication>enabled</IISExpressAnonymousAuthentication>
+    <IISExpressWindowsAuthentication>disabled</IISExpressWindowsAuthentication>
+    <IISExpressUseClassicPipelineMode />
+    <UseGlobalApplicationHostFile />
+    <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.IO.Compression" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Linq" />
+  </ItemGroup>
+  <ItemGroup>
+    <!-- Lets the project build without the .NET Framework targeting pack installed -->
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" PrivateAssets="all" />
+    <!-- Data: PostgreSQL -->
+    <PackageReference Include="Npgsql" Version="4.1.14" />
+    <PackageReference Include="Dapper" Version="2.0.151" />
+    <!-- JSON / passwords (bcrypt, same format as PHP password_hash) -->
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
+  </ItemGroup>
+  <!--ITEMS:BEGIN-->
+  <ItemGroup>
+    <Compile Include="Api\ApiController.cs" />
+    <Compile Include="Api\Controllers\AssetController.cs" />
+    <Compile Include="Api\Controllers\AuditController.cs" />
+    <Compile Include="Api\Controllers\DashboardController.cs" />
+    <Compile Include="Api\Controllers\ExportController.cs" />
+    <Compile Include="Api\Controllers\HistoryController.cs" />
+    <Compile Include="Api\Controllers\ImportController.cs" />
+    <Compile Include="Api\Controllers\LookupController.cs" />
+    <Compile Include="Api\Controllers\MasterController.cs" />
+    <Compile Include="Api\Controllers\ReceivingController.cs" />
+    <Compile Include="Api\Controllers\SessionController.cs" />
+    <Compile Include="Api\Controllers\TicketController.cs" />
+    <Compile Include="Api\Controllers\UserController.cs" />
+    <Compile Include="Api\Controllers\WorkCenterController.cs" />
+    <Compile Include="Api\Kernel.cs" />
+    <Compile Include="Api\Meta.cs" />
+    <Compile Include="Api\Router.cs" />
+    <Compile Include="Api\Routes.cs" />
+    <Compile Include="Core\AppConfig.cs" />
+    <Compile Include="Core\AppContext.cs" />
+    <Compile Include="Core\Auth.cs" />
+    <Compile Include="Core\Csrf.cs" />
+    <Compile Include="Core\Database.cs" />
+    <Compile Include="Core\Exceptions.cs" />
+    <Compile Include="Core\Lang.cs" />
+    <Compile Include="Core\Paginator.cs" />
+    <Compile Include="Core\Request.cs" />
+    <Compile Include="Core\Row.cs" />
+    <Compile Include="Core\Session.cs" />
+    <Compile Include="Default.aspx.cs">
+      <DependentUpon>Default.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Models\AssetFields.cs" />
+    <Compile Include="Models\Role.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Repositories\AssetRepository.cs" />
+    <Compile Include="Repositories\HistoryRepository.cs" />
+    <Compile Include="Repositories\MasterRepository.cs" />
+    <Compile Include="Repositories\StatsRepository.cs" />
+    <Compile Include="Repositories\TicketRepository.cs" />
+    <Compile Include="Repositories\UserRepository.cs" />
+    <Compile Include="Repositories\WorkCenterRepository.cs" />
+    <Compile Include="Services\AssetFilter.cs" />
+    <Compile Include="Services\AssetService.cs" />
+    <Compile Include="Services\AuditService.cs" />
+    <Compile Include="Services\DashboardData.cs" />
+    <Compile Include="Services\ExportService.cs" />
+    <Compile Include="Services\ImportService.cs" />
+    <Compile Include="Services\SpreadsheetReader.cs" />
+    <Compile Include="Services\TicketService.cs" />
+    <Compile Include="Services\XlsxWriter.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Default.aspx" />
+    <Content Include="api.ashx" />
+    <Content Include="Web.config" />
+    <Content Include="assets\app.js" />
+    <Content Include="assets\favicon.svg" />
+    <Content Include="assets\logo.svg" />
+    <Content Include="assets\theme.css" />
+    <Content Include="assets\js\components.js" />
+    <Content Include="assets\js\core.js" />
+    <Content Include="assets\js\demo-api.js" />
+    <Content Include="assets\js\i18n.js" />
+    <Content Include="assets\js\mascot.js" />
+    <Content Include="assets\js\lang\th-admin.js" />
+    <Content Include="assets\js\lang\th-assets.js" />
+    <Content Include="assets\js\lang\th-core.js" />
+    <Content Include="assets\js\lang\th-tickets.js" />
+    <Content Include="assets\js\pages\admin.js" />
+    <Content Include="assets\js\pages\assets.js" />
+    <Content Include="assets\js\pages\core-pages.js" />
+    <Content Include="assets\js\pages\tickets.js" />
+    <Content Include="assets\vendor\bootstrap\bootstrap.bundle.min.js" />
+    <Content Include="assets\vendor\bootstrap\bootstrap.min.css" />
+    <Content Include="assets\vendor\bootstrap-icons\bootstrap-icons.min.css" />
+    <Content Include="assets\vendor\bootstrap-icons\fonts\bootstrap-icons.woff" />
+    <Content Include="assets\vendor\bootstrap-icons\fonts\bootstrap-icons.woff2" />
+    <Content Include="App_Data\lang\th.json" />
+    <None Include="Web.Release.config">
+      <DependentUpon>Web.config</DependentUpon>
+    </None>
+    <None Include="ConnectionStrings.config.example" />
+    <None Include="Database\schema.pg.sql" />
+  </ItemGroup>
+  <!--ITEMS:END-->
+  <ItemGroup />
+  <PropertyGroup>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">17.0</VisualStudioVersion>
+    <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
+  </PropertyGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(VSToolsPath)\WebApplications\Microsoft.WebApplication.targets" Condition="'$(VSToolsPath)' != ''" />
+  <!-- First run on a new machine: Web.config needs ConnectionStrings.config, so copy the example when it is missing.
+       The example points at a database that may not exist yet; the app then opens in Demo mode. -->
+  <Target Name="CopyConnectionStringsExample" BeforeTargets="BeforeBuild" Condition="!Exists('$(MSBuildProjectDirectory)\ConnectionStrings.config')">
+    <Copy SourceFiles="$(MSBuildProjectDirectory)\ConnectionStrings.config.example" DestinationFiles="$(MSBuildProjectDirectory)\ConnectionStrings.config" />
+    <Message Importance="high" Text="Created ConnectionStrings.config from ConnectionStrings.config.example. Edit it to point at your PostgreSQL database." />
+  </Target>
+  <ProjectExtensions>
+    <VisualStudio>
+      <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
+        <WebProjectProperties>
+          <UseIIS>True</UseIIS>
+          <AutoAssignPort>False</AutoAssignPort>
+          <DevelopmentServerPort>8471</DevelopmentServerPort>
+          <DevelopmentServerVPath>/</DevelopmentServerVPath>
+          <IISUrl>http://localhost:8471/</IISUrl>
+          <NTLMAuthentication>False</NTLMAuthentication>
+          <UseCustomServer>False</UseCustomServer>
+          <CustomServerUrl>
+          </CustomServerUrl>
+          <SaveServerSettingsInUserFile>False</SaveServerSettingsInUserFile>
+        </WebProjectProperties>
+      </FlavorProperties>
+    </VisualStudio>
+  </ProjectExtensions>
+</Project>

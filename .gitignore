@@ -1,0 +1,17 @@
+# Build output
+bin/
+obj/
+packages/
+.vs/
+*.user
+
+# Local settings (database password)
+AssetCtrl.Web/ConnectionStrings.config
+
+# Test results
+TestResults/
+
+# Static demo build (Vercel)
+dist/
+.vercel/
+node_modules/
